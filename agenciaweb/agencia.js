@@ -3,7 +3,7 @@
  * Arquitectura basada en clases ES6+
  *
  * Clases:
- *  - PackageStore     : maneja persistencia en localStorage
+ *  - PackageStore     : maneja persistencia en Firebase Firestore
  *  - PackageRenderer  : construye y renderiza las cards en el DOM
  *  - FilterController : controla los filtros por categoría
  *  - ModalController  : abre/cierra el modal de detalle de paquete
@@ -14,18 +14,32 @@
  *  - ScrollReveal     : efecto reveal en scroll con IntersectionObserver
  *  - NavController    : comportamiento del navbar al hacer scroll
  *  - ContactForm      : maneja el formulario de consulta de clientes
+ *  - LanguageToggle   : traducción ES/EN de toda la página
  */
 
 'use strict';
 
 /* ============================================================
+   FIREBASE CONFIG
+============================================================ */
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyA-rqJU8LIZyUajUKzzEkbo67ASlPmH-GQ",
+  authDomain:        "nuevo-destino-web.firebaseapp.com",
+  projectId:         "nuevo-destino-web",
+  storageBucket:     "nuevo-destino-web.firebasestorage.app",
+  messagingSenderId: "287208628191",
+  appId:             "1:287208628191:web:cf99598c33cd1614766e6a",
+  measurementId:     "G-TP19NYNE9N"
+};
+
+/* ============================================================
    CONSTANTS
 ============================================================ */
-const STORAGE_KEY   = 'nd_packages';
-const ADMIN_USER    = 'admin';
-const ADMIN_PASS    = 'nuevodestino2026';  // ← cambiá esto
-const SESSION_KEY   = 'nd_admin_session';
-const WSP_NUMBER    = '5493413341317';
+const ADMIN_USER  = 'admin';
+const ADMIN_PASS  = 'nuevodestino2026';  // ← cambiá esto
+const SESSION_KEY = 'nd_admin_session';
+const WSP_NUMBER  = '5493413341317';
+const COLLECTION  = 'packages';
 
 const EMOJIS = [
   '✈️','🏔️','🍷','💧','🌴','🗼','🏖️','🎓',
@@ -111,89 +125,85 @@ const STATIC_PACKAGES = [
 
 /* ============================================================
    CLASS: PackageStore
-   Responsabilidad: leer/escribir paquetes en localStorage.
-   Los paquetes estáticos se inicializan si el storage está vacío.
+   Responsabilidad: leer/escribir paquetes en Firebase Firestore.
 ============================================================ */
 class PackageStore {
-  constructor(storageKey) {
-    this._key = storageKey;
-  }
-
-  /** Devuelve todos los paquetes (estáticos + dinámicos) */
-  getAll() {
-    return this._read();
-  }
-
-  /** Agrega un paquete nuevo */
-  add(pkg) {
-    const all = this._read();
-    all.unshift(pkg);
-    this._write(all);
-  }
-
-  /** Actualiza un paquete existente por id */
-  update(pkg) {
-    const all = this._read().map(p => p.id === pkg.id ? pkg : p);
-    this._write(all);
-  }
-
-  /** Elimina un paquete por id */
-  remove(id) {
-    const all = this._read().filter(p => p.id !== id);
-    this._write(all);
-  }
-
-  /** Inicializa el store con los paquetes estáticos si está vacío */
-  initWithDefaults(defaults) {
-    if (this._read().length === 0) {
-      this._write(defaults);
+  constructor() {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(FIREBASE_CONFIG);
     }
+    this._db    = firebase.firestore();
+    this._col   = this._db.collection(COLLECTION);
+    this._cache = [];
   }
 
-  _read() {
-    try {
-      return JSON.parse(localStorage.getItem(this._key)) || [];
-    } catch {
-      return [];
-    }
+  /**
+   * Suscribe un callback que se ejecuta cada vez que cambian los paquetes.
+   * Se llama inmediatamente con el estado actual (tiempo real).
+   */
+  subscribe(cb) {
+    return this._col
+      .orderBy('_createdAt', 'asc')
+      .onSnapshot(snapshot => {
+        this._cache = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+        cb(this._cache);
+      }, err => {
+        console.error('Firestore error:', err);
+        cb(this._cache);
+      });
   }
 
-  _write(data) {
-    localStorage.setItem(this._key, JSON.stringify(data));
+  /** Caché local síncrono para uso interno del drawer */
+  getAll() { return this._cache; }
+
+  async add(pkg) {
+    const data = { ...pkg, _createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+    await this._col.doc(pkg.id).set(data);
+  }
+
+  async update(pkg) {
+    await this._col.doc(pkg.id).set(pkg, { merge: true });
+  }
+
+  async remove(id) {
+    await this._col.doc(id).delete();
+  }
+
+  /** Carga los paquetes estáticos solo si la colección está vacía */
+  async initWithDefaults(defaults) {
+    const snap = await this._col.limit(1).get();
+    if (!snap.empty) return;
+    const batch = this._db.batch();
+    defaults.forEach(pkg => {
+      batch.set(this._col.doc(pkg.id), {
+        ...pkg,
+        _createdAt: firebase.firestore.Timestamp.fromDate(new Date()),
+      });
+    });
+    await batch.commit();
   }
 }
 
 
 /* ============================================================
    CLASS: PackageRenderer
-   Responsabilidad: construir el HTML de las cards y renderizarlas.
 ============================================================ */
 class PackageRenderer {
-  /**
-   * @param {HTMLElement} gridEl  - el contenedor .package-grid
-   * @param {Function}    onCardClick - callback al hacer clic en una card
-   */
   constructor(gridEl, onCardClick) {
-    this._grid       = gridEl;
+    this._grid        = gridEl;
     this._onCardClick = onCardClick;
   }
 
-  /** Renderiza el array completo de paquetes */
   render(packages) {
     this._grid.innerHTML = '';
-    packages.forEach(pkg => {
-      const card = this._buildCard(pkg);
-      this._grid.appendChild(card);
-    });
+    packages.forEach(pkg => this._grid.appendChild(this._buildCard(pkg)));
   }
 
-  /** Inserta una sola card al principio del grid (cuando el admin agrega una nueva) */
   prepend(pkg) {
     const card = this._buildCard(pkg);
-    card.style.opacity = '0';
+    card.style.opacity   = '0';
     card.style.transform = 'translateY(20px)';
     this._grid.insertBefore(card, this._grid.firstChild);
-    // Trigger animation
     requestAnimationFrame(() => {
       card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
       card.style.opacity    = '1';
@@ -201,15 +211,12 @@ class PackageRenderer {
     });
   }
 
-  /** Actualiza la card existente con el nuevo contenido */
   updateCard(pkg) {
     const existing = this._grid.querySelector(`[data-id="${pkg.id}"]`);
     if (!existing) return;
-    const newCard = this._buildCard(pkg);
-    this._grid.replaceChild(newCard, existing);
+    this._grid.replaceChild(this._buildCard(pkg), existing);
   }
 
-  /** Elimina la card del DOM */
   removeCard(id) {
     const card = this._grid.querySelector(`[data-id="${id}"]`);
     if (!card) return;
@@ -220,22 +227,17 @@ class PackageRenderer {
   }
 
   _buildCard(pkg) {
-    const isIntl = pkg.cat === 'internacional';
-
+    const isIntl  = pkg.cat === 'internacional';
     const article = document.createElement('article');
     article.className = 'package-card';
-    article.setAttribute('data-id',  pkg.id);
-    article.setAttribute('data-cat', pkg.cat);
-    article.setAttribute('role',     'listitem');
-    article.setAttribute('tabindex', '0');
+    article.setAttribute('data-id',    pkg.id);
+    article.setAttribute('data-cat',   pkg.cat);
+    article.setAttribute('role',       'listitem');
+    article.setAttribute('tabindex',   '0');
     article.setAttribute('aria-label', pkg.title);
-
     article.innerHTML = `
       <div class="package-card__thumb">
-        ${pkg.image
-          ? `<img class="package-card__thumb-img" src="${pkg.image}" alt="${pkg.title}" loading="lazy" />`
-          : ''
-        }
+        ${pkg.image ? `<img class="package-card__thumb-img" src="${pkg.image}" alt="${pkg.title}" loading="lazy" />` : ''}
         <div class="package-card__thumb-overlay"></div>
         <span class="package-card__emoji" aria-hidden="true">${pkg.emoji}</span>
         <span class="package-card__badge ${isIntl ? 'package-card__badge--intl' : ''}">
@@ -258,9 +260,8 @@ class PackageRenderer {
           <span class="package-card__cta" aria-hidden="true">Ver detalles →</span>
         </div>
       </div>`;
-
-    article.addEventListener('click', () => this._onCardClick(pkg));
-    article.addEventListener('keydown', e => { if (e.key === 'Enter') this._onCardClick(pkg); });
+    article.addEventListener('click',   ()  => this._onCardClick(pkg));
+    article.addEventListener('keydown', (e) => { if (e.key === 'Enter') this._onCardClick(pkg); });
     return article;
   }
 }
@@ -268,13 +269,8 @@ class PackageRenderer {
 
 /* ============================================================
    CLASS: FilterController
-   Responsabilidad: filtrar las cards visibles por categoría.
 ============================================================ */
 class FilterController {
-  /**
-   * @param {NodeList} tabEls  - botones .filter-bar__tab
-   * @param {HTMLElement} gridEl - contenedor del grid
-   */
   constructor(tabEls, gridEl) {
     this._tabs   = tabEls;
     this._grid   = gridEl;
@@ -282,10 +278,7 @@ class FilterController {
     this._bindTabs();
   }
 
-  /** Filtra sin cambiar el tab activo (útil al re-renderizar) */
-  apply() {
-    this._filter(this._active);
-  }
+  apply() { this._filter(this._active); }
 
   _bindTabs() {
     this._tabs.forEach(tab => {
@@ -302,17 +295,11 @@ class FilterController {
     });
   }
 
-  _filter(filterValue) {
-    const cards = this._grid.querySelectorAll('.package-card');
-    cards.forEach(card => {
-      const matches = filterValue === 'all' || card.dataset.cat === filterValue;
-      if (matches) {
-        card.classList.remove('package-card--hidden');
-        card.removeAttribute('aria-hidden');
-      } else {
-        card.classList.add('package-card--hidden');
-        card.setAttribute('aria-hidden', 'true');
-      }
+  _filter(val) {
+    this._grid.querySelectorAll('.package-card').forEach(card => {
+      const matches = val === 'all' || card.dataset.cat === val;
+      card.classList.toggle('package-card--hidden', !matches);
+      matches ? card.removeAttribute('aria-hidden') : card.setAttribute('aria-hidden', 'true');
     });
   }
 }
@@ -320,26 +307,22 @@ class FilterController {
 
 /* ============================================================
    CLASS: ModalController
-   Responsabilidad: abrir y cerrar el modal de detalle del paquete.
 ============================================================ */
 class ModalController {
   constructor() {
-    this._overlay  = document.getElementById('js-modal');
-    this._closeBtn = document.getElementById('js-modal-close');
+    this._overlay    = document.getElementById('js-modal');
+    this._closeBtn   = document.getElementById('js-modal-close');
     this._consultBtn = document.getElementById('js-modal-consult');
     this._bindClose();
   }
 
-  /** Abre el modal con los datos del paquete */
   open(pkg) {
-    // Populate content
     document.getElementById('js-modal-emoji').textContent = pkg.emoji;
     document.getElementById('js-modal-cat').textContent   = pkg.catLabel || pkg.cat;
     document.getElementById('js-modal-title').textContent = pkg.title;
     document.getElementById('js-modal-desc').textContent  = pkg.desc;
     document.getElementById('js-modal-price').textContent = pkg.precio;
 
-    // Meta chips
     const metaEl = document.getElementById('js-modal-meta');
     metaEl.innerHTML = '';
     [pkg.dur, pkg.pers, pkg.sal].filter(Boolean).forEach(text => {
@@ -348,7 +331,6 @@ class ModalController {
       metaEl.appendChild(span);
     });
 
-    // Includes list
     const inclEl = document.getElementById('js-modal-includes');
     inclEl.innerHTML = '';
     (pkg.includes || []).forEach(item => {
@@ -357,34 +339,27 @@ class ModalController {
       inclEl.appendChild(li);
     });
 
-    // Thumb image
     const thumbEl = document.getElementById('js-modal-thumb');
     const emojiEl = document.getElementById('js-modal-emoji');
     thumbEl.querySelectorAll('.modal__thumb-img, .modal__thumb-overlay').forEach(el => el.remove());
     if (pkg.image) {
       const img = document.createElement('img');
       img.className = 'modal__thumb-img';
-      img.src = pkg.image;
-      img.alt = pkg.title;
+      img.src = pkg.image; img.alt = pkg.title;
       const overlay = document.createElement('div');
       overlay.className = 'modal__thumb-overlay';
       thumbEl.insertBefore(overlay, emojiEl);
       thumbEl.insertBefore(img, overlay);
     }
 
-    // WhatsApp link
-    const msg = encodeURIComponent(
-      `Hola! Me interesa el paquete "${pkg.title}" (${pkg.precio}). ¿Me pueden dar más información?`
-    );
+    const msg = encodeURIComponent(`Hola! Me interesa el paquete "${pkg.title}" (${pkg.precio}). ¿Me pueden dar más información?`);
     document.getElementById('js-modal-wsp').href = `https://wa.me/${WSP_NUMBER}?text=${msg}`;
 
-    // Consult button scrolls to form
     this._consultBtn.onclick = () => {
       this.close();
       setTimeout(() => document.getElementById('consulta').scrollIntoView({ behavior: 'smooth' }), 300);
     };
 
-    // Show
     this._overlay.hidden = false;
     requestAnimationFrame(() => this._overlay.classList.add('modal-overlay--visible'));
     document.body.style.overflow = 'hidden';
@@ -398,29 +373,18 @@ class ModalController {
 
   _bindClose() {
     this._closeBtn.addEventListener('click', () => this.close());
-    this._overlay.addEventListener('click', e => {
-      if (e.target === this._overlay) this.close();
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && !this._overlay.hidden) this.close();
-    });
+    this._overlay.addEventListener('click', e => { if (e.target === this._overlay) this.close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !this._overlay.hidden) this.close(); });
   }
 }
 
 
 /* ============================================================
    CLASS: AdminAuth
-   Responsabilidad: validar credenciales y mantener la sesión.
 ============================================================ */
 class AdminAuth {
-  constructor(sessionKey) {
-    this._sessionKey = sessionKey;
-  }
-
-  isLoggedIn() {
-    return sessionStorage.getItem(this._sessionKey) === 'true';
-  }
-
+  constructor(sessionKey) { this._sessionKey = sessionKey; }
+  isLoggedIn() { return sessionStorage.getItem(this._sessionKey) === 'true'; }
   login(user, pass) {
     if (user === ADMIN_USER && pass === ADMIN_PASS) {
       sessionStorage.setItem(this._sessionKey, 'true');
@@ -428,102 +392,79 @@ class AdminAuth {
     }
     return false;
   }
-
-  logout() {
-    sessionStorage.removeItem(this._sessionKey);
-  }
+  logout() { sessionStorage.removeItem(this._sessionKey); }
 }
 
 
 /* ============================================================
    CLASS: AdminDrawer
-   Responsabilidad: abrir/cerrar el drawer lateral del panel admin.
 ============================================================ */
 class AdminDrawer {
   constructor() {
     this._drawer   = document.getElementById('js-admin-drawer');
     this._backdrop = document.getElementById('js-admin-backdrop');
     this._closeBtn = document.getElementById('js-drawer-close');
-
-    this._closeBtn.addEventListener('click',    () => this.close());
-    this._backdrop.addEventListener('click',    () => this.close());
+    this._closeBtn.addEventListener('click',  () => this.close());
+    this._backdrop.addEventListener('click',  () => this.close());
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && !this._drawer.hidden) this.close();
     });
   }
-
   open() {
     this._drawer.hidden   = false;
     this._backdrop.hidden = false;
     requestAnimationFrame(() => this._drawer.classList.add('admin-drawer--open'));
     document.body.style.overflow = 'hidden';
   }
-
   close() {
     this._drawer.classList.remove('admin-drawer--open');
     document.body.style.overflow = '';
-    setTimeout(() => {
-      this._backdrop.hidden = true;
-    }, 350);
+    setTimeout(() => { this._backdrop.hidden = true; }, 350);
   }
-
-  isOpen() {
-    return this._drawer.classList.contains('admin-drawer--open');
-  }
+  isOpen() { return this._drawer.classList.contains('admin-drawer--open'); }
 }
 
 
 /* ============================================================
    CLASS: PackageForm
-   Responsabilidad: manejar el formulario CRUD de paquetes
-   dentro del drawer del admin.
 ============================================================ */
 class PackageForm {
-  /**
-   * @param {PackageStore}   store
-   * @param {PackageRenderer} renderer
-   * @param {FilterController} filter
-   * @param {Function} onSave - callback después de guardar
-   */
   constructor(store, renderer, filter, onSave) {
-    this._store    = store;
-    this._renderer = renderer;
-    this._filter   = filter;
-    this._onSave   = onSave;
+    this._store     = store;
+    this._renderer  = renderer;
+    this._filter    = filter;
+    this._onSave    = onSave;
     this._editingId = null;
 
-    this._form       = document.getElementById('js-pkg-form');
-    this._saveLabel  = document.getElementById('js-save-label');
-    this._cancelBtn  = document.getElementById('js-cancel-edit');
-    this._listEl     = document.getElementById('js-admin-list');
-    this._emptyEl    = document.getElementById('js-admin-empty');
-    this._addIncBtn  = document.getElementById('js-add-include');
-    this._dropZone   = document.getElementById('js-img-drop-zone');
-    this._imgPreview = document.getElementById('js-img-preview');
-    this._imgFile    = document.getElementById('pf-img-file');
+    this._form        = document.getElementById('js-pkg-form');
+    this._saveBtn     = document.getElementById('js-save-btn');
+    this._saveLabel   = document.getElementById('js-save-label');
+    this._cancelBtn   = document.getElementById('js-cancel-edit');
+    this._listEl      = document.getElementById('js-admin-list');
+    this._emptyEl     = document.getElementById('js-admin-empty');
+    this._addIncBtn   = document.getElementById('js-add-include');
+    this._dropZone    = document.getElementById('js-img-drop-zone');
+    this._imgPreview  = document.getElementById('js-img-preview');
+    this._imgFile     = document.getElementById('pf-img-file');
     this._imgUrlInput = document.getElementById('pf-img-url');
-    this._imgData    = document.getElementById('pf-img-data');
+    this._imgData     = document.getElementById('pf-img-data');
 
     this._buildEmojiPicker();
     this._addIncludeRow('');
     this._bindEvents();
   }
 
-  /** Renderiza la lista de paquetes en el drawer */
   renderList() {
     const pkgs = this._store.getAll();
     this._listEl.innerHTML = '';
     this._emptyEl.style.display = pkgs.length === 0 ? 'block' : 'none';
-
     pkgs.forEach(pkg => {
       const li = document.createElement('li');
       li.className = `admin-pkg-item ${this._editingId === pkg.id ? 'admin-pkg-item--editing' : ''}`;
       li.dataset.id = pkg.id;
       li.innerHTML = `
         <div class="admin-pkg-item__thumb">
-          ${pkg.image
-            ? `<img src="${pkg.image}" alt="${pkg.title}">`
-            : `<span>${pkg.emoji}</span>`}
+          ${pkg.image ? `<img src="${pkg.image}" alt="${pkg.title}">` : `<span>${pkg.emoji}</span>`}
         </div>
         <div class="admin-pkg-item__info">
           <p class="admin-pkg-item__name">${pkg.title}</p>
@@ -537,7 +478,6 @@ class PackageForm {
     });
   }
 
-  /** Carga los datos de un paquete en el formulario para edición */
   loadForEdit(pkg) {
     this._editingId = pkg.id;
     document.getElementById('pf-id').value        = pkg.id;
@@ -550,27 +490,16 @@ class PackageForm {
     document.getElementById('pf-sal').value       = pkg.sal || '';
     document.getElementById('pf-short').value     = pkg.short || '';
     document.getElementById('pf-desc').value      = pkg.desc || '';
-
-    // Image
-    this._imgData.value = pkg.image || '';
+    this._imgData.value     = pkg.image || '';
     this._imgUrlInput.value = '';
     this._setImagePreview(pkg.image || '');
-
-    // Emoji
     document.getElementById('pf-emoji').value = pkg.emoji;
     this._highlightEmoji(pkg.emoji);
-
-    // Includes
     document.getElementById('js-includes-editor').innerHTML = '';
     (pkg.includes || ['']).forEach(v => this._addIncludeRow(v));
-
-    this._saveLabel.textContent    = 'Actualizar paquete →';
-    this._cancelBtn.hidden         = false;
-
-    // Scroll form to top
+    this._saveLabel.textContent = 'Actualizar paquete →';
+    this._cancelBtn.hidden      = false;
     document.getElementById('js-admin-drawer').scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Highlight in list
     this.renderList();
   }
 
@@ -588,44 +517,33 @@ class PackageForm {
     this.renderList();
   }
 
-  // ── Private ──────────────────────────────────────────────
-
   _bindEvents() {
-    // Form submit
     this._form.addEventListener('submit', e => { e.preventDefault(); this._handleSave(); });
-
-    // Cancel edit
     this._cancelBtn.addEventListener('click', () => this.reset());
+    this._addIncBtn.addEventListener('click',  () => this._addIncludeRow(''));
 
-    // Add include row
-    this._addIncBtn.addEventListener('click', () => this._addIncludeRow(''));
-
-    // Delegate list actions (edit / delete)
-    this._listEl.addEventListener('click', e => {
+    this._listEl.addEventListener('click', async e => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
       const id  = btn.dataset.id;
       const pkg = this._store.getAll().find(p => p.id === id);
       if (!pkg) return;
-
       if (btn.dataset.action === 'edit') {
         this.loadForEdit(pkg);
       } else if (btn.dataset.action === 'del') {
         if (confirm(`¿Eliminar "${pkg.title}"?`)) {
-          this._store.remove(id);
-          this._renderer.removeCard(id);
-          this.renderList();
+          btn.disabled = true;
+          await this._store.remove(id);
+          // El snapshot listener actualiza el renderer automáticamente
         }
       }
     });
 
-    // Image file input
     this._imgFile.addEventListener('change', e => {
       const file = e.target.files[0];
       if (file) this._readImageFile(file);
     });
 
-    // Image URL input (debounced)
     let urlTimer;
     this._imgUrlInput.addEventListener('input', e => {
       clearTimeout(urlTimer);
@@ -638,7 +556,6 @@ class PackageForm {
       }, 600);
     });
 
-    // Drag & drop
     this._dropZone.addEventListener('dragover', e => {
       e.preventDefault();
       this._dropZone.classList.add('img-drop-zone--dragover');
@@ -654,7 +571,7 @@ class PackageForm {
     });
   }
 
-  _handleSave() {
+  async _handleSave() {
     const pkg = {
       id:       this._editingId || `pkg-${Date.now()}`,
       cat:      document.getElementById('pf-cat').value,
@@ -672,17 +589,25 @@ class PackageForm {
       sal:      document.getElementById('pf-sal').value.trim(),
     };
 
-    if (this._editingId) {
-      this._store.update(pkg);
-      this._renderer.updateCard(pkg);
-    } else {
-      this._store.add(pkg);
-      this._renderer.prepend(pkg);
-    }
+    this._saveBtn.disabled      = true;
+    this._saveLabel.textContent = 'Guardando…';
 
-    this._filter.apply();
-    this.reset();
-    this._onSave(this._editingId ? 'updated' : 'created');
+    try {
+      const isEdit = !!this._editingId;
+      if (isEdit) {
+        await this._store.update(pkg);
+      } else {
+        await this._store.add(pkg);
+      }
+      this._onSave(isEdit ? 'updated' : 'created');
+      this.reset();
+    } catch (err) {
+      console.error('Error al guardar:', err);
+      this._saveLabel.textContent = '⚠️ Error al guardar';
+      setTimeout(() => { this._saveLabel.textContent = 'Guardar paquete →'; }, 2500);
+    } finally {
+      this._saveBtn.disabled = false;
+    }
   }
 
   _addIncludeRow(value) {
@@ -699,8 +624,7 @@ class PackageForm {
 
   _getIncludes() {
     return [...document.querySelectorAll('.includes-editor__item input')]
-      .map(i => i.value.trim())
-      .filter(Boolean);
+      .map(i => i.value.trim()).filter(Boolean);
   }
 
   _buildEmojiPicker() {
@@ -708,8 +632,8 @@ class PackageForm {
     picker.innerHTML = '';
     EMOJIS.forEach(emoji => {
       const btn = document.createElement('button');
-      btn.type        = 'button';
-      btn.className   = 'emoji-picker__option';
+      btn.type = 'button';
+      btn.className = 'emoji-picker__option';
       btn.textContent = emoji;
       btn.setAttribute('aria-label', emoji);
       btn.addEventListener('click', () => {
@@ -730,7 +654,7 @@ class PackageForm {
   _readImageFile(file) {
     const reader = new FileReader();
     reader.onload = ev => {
-      this._imgData.value = ev.target.result;
+      this._imgData.value     = ev.target.result;
       this._setImagePreview(ev.target.result);
       this._imgUrlInput.value = '';
     };
@@ -738,42 +662,34 @@ class PackageForm {
   }
 
   _setImagePreview(src) {
-    if (src) {
-      this._imgPreview.innerHTML = `<img src="${src}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">`;
-    } else {
-      this._imgPreview.innerHTML = `
-        <span class="img-drop-zone__icon">🖼️</span>
-        <p class="img-drop-zone__hint">Arrastrá una imagen o hacé clic</p>`;
-    }
+    this._imgPreview.innerHTML = src
+      ? `<img src="${src}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">`
+      : `<span class="img-drop-zone__icon">🖼️</span><p class="img-drop-zone__hint">Arrastrá una imagen o hacé clic</p>`;
   }
 
   _catLabelDefault(cat) {
-    const map = { nacional: 'Nacional', internacional: 'Internacional', egresados: 'Egresados', grupal: 'Grupal' };
-    return map[cat] || cat;
+    return { nacional: 'Nacional', internacional: 'Internacional', egresados: 'Egresados', grupal: 'Grupal' }[cat] || cat;
   }
 }
 
 
 /* ============================================================
    CLASS: HeroAnimator
-   Responsabilidad: ejecutar animaciones de entrada del hero.
 ============================================================ */
 class HeroAnimator {
   run() {
     const tag = document.getElementById('js-hero-tag');
     setTimeout(() => this._reveal(tag), 120);
-
     document.querySelectorAll('.hero__title-line').forEach((line, i) => {
       setTimeout(() => { line.style.clipPath = 'inset(0 0 0% 0)'; }, 200 + i * 140);
     });
-
     [['js-hero-desc', 640], ['js-hero-badges', 800]].forEach(([id, delay]) => {
       const el = document.getElementById(id);
       if (el) setTimeout(() => this._reveal(el), delay);
     });
   }
-
   _reveal(el) {
+    if (!el) return;
     el.style.transition = 'opacity 0.75s ease, transform 0.75s ease';
     el.style.opacity    = '1';
     el.style.transform  = 'none';
@@ -783,23 +699,18 @@ class HeroAnimator {
 
 /* ============================================================
    CLASS: ScrollReveal
-   Responsabilidad: animar elementos con data-reveal al hacer scroll.
 ============================================================ */
 class ScrollReveal {
   constructor() {
-    this._observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry, i) => {
-          if (entry.isIntersecting) {
-            setTimeout(() => entry.target.classList.add('is-visible'), i * 80);
-            this._observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.08 }
-    );
+    this._observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('is-visible'), i * 80);
+          this._observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08 });
   }
-
   observe() {
     document.querySelectorAll('[data-reveal]').forEach(el => this._observer.observe(el));
   }
@@ -808,36 +719,33 @@ class ScrollReveal {
 
 /* ============================================================
    CLASS: NavController
-   Responsabilidad: agregar clase scrolled al nav al hacer scroll.
 ============================================================ */
 class NavController {
   constructor(navEl) {
     this._nav = navEl;
     window.addEventListener('scroll', () => {
       this._nav.classList.toggle('nav--scrolled', window.scrollY > 40);
-    });
+    }, { passive: true });
   }
 }
 
 
 /* ============================================================
    CLASS: ContactForm
-   Responsabilidad: manejar el envío del formulario de consulta.
 ============================================================ */
 class ContactForm {
   constructor(formEl) {
     this._form = formEl;
     this._form.addEventListener('submit', e => this._handleSubmit(e));
   }
-
   _handleSubmit(e) {
     e.preventDefault();
     const btn  = this._form.querySelector('.btn--primary');
     const span = btn.querySelector('span');
-    span.textContent    = '✓ Enviado — te contactamos pronto';
+    span.textContent     = '✓ Enviado — te contactamos pronto';
     btn.style.background = '#25D366';
     setTimeout(() => {
-      span.textContent    = 'Consultar mi viaje →';
+      span.textContent     = 'Consultar mi viaje →';
       btn.style.background = '';
     }, 3500);
   }
@@ -845,21 +753,153 @@ class ContactForm {
 
 
 /* ============================================================
-   BOOTSTRAP — instancia y conecta todas las clases
+   CLASS: LanguageToggle
 ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
+class LanguageToggle {
+  constructor(btnId, flagId, labelId) {
+    this._btn   = document.getElementById(btnId);
+    this._flag  = document.getElementById(flagId);
+    this._label = document.getElementById(labelId);
+    this._lang  = 'es';
 
-  /* 1 · Store */
-  const store = new PackageStore(STORAGE_KEY);
-  store.initWithDefaults(STATIC_PACKAGES);
+    this._strings = {
+      es: {
+        'nav.inicio':    'Inicio',      'nav.traslados': 'Traslados',
+        'nav.agencia':   'Agencia',     'nav.consultar': 'Consultar',
+        'hero.watermark':'VIAJES',      'hero.breadcrumb':'Agencia de Viajes',
+        'hero.tag':      'Agencia habilitada · Turismo',
+        'hero.title1':   'Nuevo Destino', 'hero.title2': 'Viajes.',
+        'hero.desc':     'Agencia de turismo nacional e internacional habilitada. Paquetes a medida, excursiones y viajes grupales para que solo te preocupes de disfrutar.',
+        'hero.badge1':   'Turismo nacional', 'hero.badge2': 'Internacional',
+        'hero.badge3':   'Viajes grupales',  'hero.badge4': 'Paquetes a medida',
+        'filter.all':'Todos','filter.nacional':'Nacional','filter.internacional':'Internacional',
+        'filter.egresados':'Egresados','filter.grupal':'Grupal',
+        'packages.heading':'Paquetes <em>turísticos.</em>',
+        'packages.sub':  'Hacé clic en cualquier paquete para ver detalles y consultar.',
+        'srv.tag':'Qué ofrecemos','srv.heading':'Servicios de <em>agencia.</em>',
+        'srv.sub':'Agencia habilitada para operar turismo nacional e internacional.',
+        'srv.nacional.title':'Turismo nacional',
+        'srv.nacional.1':'Transporte turístico nacional','srv.nacional.2':'Paquetes completos con alojamiento',
+        'srv.nacional.3':'Viajes grupales y excursiones','srv.nacional.4':'Operación de viajes organizados',
+        'srv.inter.title':'Turismo internacional',
+        'srv.inter.1':'Paquetes internacionales completos','srv.inter.2':'Traslados aéreos y marítimos',
+        'srv.inter.3':'Servicios receptivos en destino','srv.inter.4':'Asistencia al viajero internacional',
+        'srv.receptivo.title':'Servicios receptivos',
+        'srv.receptivo.1':'Transfer aeropuerto / hotel','srv.receptivo.2':'Excursiones en destino',
+        'srv.receptivo.3':'Servicios para agencias de turismo','srv.receptivo.4':'City tours personalizados',
+        'contact.tag':'Consultá tu viaje','contact.heading':'¿A dónde querés <em>viajar?</em>',
+        'contact.sub':'Un asesor te contacta para armar el paquete ideal para vos.',
+        'cform.name.label':'Nombre y apellido','cform.name.ph':'Tu nombre',
+        'cform.phone.label':'Teléfono / WhatsApp','cform.email.label':'Email',
+        'cform.type.label':'Tipo de viaje','cform.type.opt0':'Seleccioná…',
+        'cform.type.opt1':'Nacional','cform.type.opt2':'Internacional',
+        'cform.type.opt3':'Egresados','cform.type.opt4':'Tour de compras',
+        'cform.type.opt5':'Grupal a medida','cform.type.opt6':'Otro',
+        'cform.pax.label':'Cantidad de personas','cform.pax.opt0':'Estimado…',
+        'cform.pax.opt1':'1 – 2 personas','cform.pax.opt2':'3 – 5 personas',
+        'cform.pax.opt3':'6 – 15 personas','cform.pax.opt4':'16 – 30 personas','cform.pax.opt5':'Más de 30',
+        'cform.dest.label':'Destino de interés','cform.dest.ph':'Ej: Bariloche, Europa…',
+        'cform.date.label':'Fecha estimada','cform.date.ph':'Ej: Julio 2026',
+        'cform.msg.label':'Contanos más','cform.msg.ph':'¿Qué tipo de experiencia buscás?',
+        'cform.submit':'Consultar mi viaje →',
+        'footer.brand':'Viajes','footer.copy':'© 2026 · Agencia habilitada · Rosario, Argentina',
+        'modal.includes':'¿Qué incluye?','modal.priceLabel':'Precio desde',
+        'modal.priceNote':'por persona','modal.disclaimer':'Precios sujetos a disponibilidad. Consultá con nuestro equipo.',
+        'modal.consult':'Consultar este paquete','wsp.tooltip':'Escribinos',
+      },
+      en: {
+        'nav.inicio':'Home','nav.traslados':'Transfers',
+        'nav.agencia':'Agency','nav.consultar':'Enquire',
+        'hero.watermark':'TRAVEL','hero.breadcrumb':'Travel Agency',
+        'hero.tag':'Licensed agency · Tourism',
+        'hero.title1':'Nuevo Destino','hero.title2':'Travel.',
+        'hero.desc':'Licensed national and international travel agency. Tailor-made packages, excursions and group trips — you just focus on enjoying.',
+        'hero.badge1':'Domestic tourism','hero.badge2':'International',
+        'hero.badge3':'Group travel','hero.badge4':'Tailor-made packages',
+        'filter.all':'All','filter.nacional':'Domestic','filter.internacional':'International',
+        'filter.egresados':'School trips','filter.grupal':'Group',
+        'packages.heading':'<em>Travel</em> packages.',
+        'packages.sub':'Click on any package to see details and enquire.',
+        'srv.tag':'What we offer','srv.heading':'<em>Agency</em> services.',
+        'srv.sub':'Licensed to operate national and international tourism.',
+        'srv.nacional.title':'Domestic tourism',
+        'srv.nacional.1':'National tourist transport','srv.nacional.2':'Full packages with accommodation',
+        'srv.nacional.3':'Group travel and excursions','srv.nacional.4':'Organised trip operations',
+        'srv.inter.title':'International tourism',
+        'srv.inter.1':'Full international packages','srv.inter.2':'Air and sea transfers',
+        'srv.inter.3':'Receptive services at destination','srv.inter.4':'International traveller assistance',
+        'srv.receptivo.title':'Receptive services',
+        'srv.receptivo.1':'Airport / hotel transfer','srv.receptivo.2':'Excursions at destination',
+        'srv.receptivo.3':'Services for travel agencies','srv.receptivo.4':'Personalised city tours',
+        'contact.tag':'Enquire about your trip','contact.heading':'Where do you want to <em>travel?</em>',
+        'contact.sub':'An adviser will contact you to put together the ideal package for you.',
+        'cform.name.label':'Full name','cform.name.ph':'Your name',
+        'cform.phone.label':'Phone / WhatsApp','cform.email.label':'Email',
+        'cform.type.label':'Trip type','cform.type.opt0':'Select…',
+        'cform.type.opt1':'Domestic','cform.type.opt2':'International',
+        'cform.type.opt3':'School trip','cform.type.opt4':'Shopping tour',
+        'cform.type.opt5':'Custom group','cform.type.opt6':'Other',
+        'cform.pax.label':'Number of people','cform.pax.opt0':'Estimate…',
+        'cform.pax.opt1':'1 – 2 people','cform.pax.opt2':'3 – 5 people',
+        'cform.pax.opt3':'6 – 15 people','cform.pax.opt4':'16 – 30 people','cform.pax.opt5':'More than 30',
+        'cform.dest.label':'Destination of interest','cform.dest.ph':'E.g.: Bariloche, Europe…',
+        'cform.date.label':'Estimated date','cform.date.ph':'E.g.: July 2026',
+        'cform.msg.label':'Tell us more','cform.msg.ph':'What kind of experience are you looking for?',
+        'cform.submit':'Enquire about my trip →',
+        'footer.brand':'Travel','footer.copy':'© 2026 · Licensed agency · Rosario, Argentina',
+        'modal.includes':"What's included?",'modal.priceLabel':'Price from',
+        'modal.priceNote':'per person','modal.disclaimer':'Prices subject to availability. Contact our team.',
+        'modal.consult':'Enquire about this package','wsp.tooltip':'Message us',
+      },
+    };
 
-  /* 2 · Modal de detalle */
+    if (!this._btn) return;
+    this._btn.addEventListener('click',    ()  => this._toggle());
+    this._btn.addEventListener('touchend', (e) => { e.preventDefault(); this._toggle(); });
+  }
+
+  _toggle() {
+    this._lang = this._lang === 'es' ? 'en' : 'es';
+    this._applyLanguage();
+    this._updateBtn();
+  }
+
+  _applyLanguage() {
+    const dict = this._strings[this._lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (dict[key] === undefined) return;
+      dict[key].includes('<') ? (el.innerHTML = dict[key]) : (el.textContent = dict[key]);
+    });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const key = el.getAttribute('data-i18n-ph');
+      if (dict[key] !== undefined) el.placeholder = dict[key];
+    });
+    document.documentElement.lang = this._lang;
+  }
+
+  _updateBtn() {
+    this._flag.textContent  = this._lang === 'en' ? '🇦🇷' : '🇬🇧';
+    this._label.textContent = this._lang === 'en' ? 'ES'   : 'EN';
+  }
+}
+
+
+/* ============================================================
+   BOOTSTRAP
+============================================================ */
+document.addEventListener('DOMContentLoaded', async () => {
+
+  /* 1 · Store Firebase */
+  const store = new PackageStore();
+  await store.initWithDefaults(STATIC_PACKAGES);
+
+  /* 2 · Modal */
   const modal = new ModalController();
 
   /* 3 · Renderer */
   const gridEl   = document.getElementById('js-package-grid');
   const renderer = new PackageRenderer(gridEl, (pkg) => modal.open(pkg));
-  renderer.render(store.getAll());
 
   /* 4 · Filter */
   const filterTabs = document.querySelectorAll('.filter-bar__tab');
@@ -873,23 +913,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* 7 · Package Form */
   const pkgForm = new PackageForm(store, renderer, filter, (action) => {
-    // feedback toast-like: flash the drawer header
-    const header = document.querySelector('.admin-drawer__title');
+    const header   = document.querySelector('.admin-drawer__title');
     const original = header.innerHTML;
     header.innerHTML = action === 'created'
       ? 'Paquete <em>publicado ✓</em>'
       : 'Paquete <em>actualizado ✓</em>';
     setTimeout(() => { header.innerHTML = original; }, 2200);
   });
-  pkgForm.renderList();
 
-  /* 8 · Login modal */
-  const loginModal  = document.getElementById('js-login-modal');
-  const loginClose  = document.getElementById('js-login-close');
-  const loginForm   = document.getElementById('js-login-form');
-  const loginError  = document.getElementById('js-login-error');
-  const adminBtn    = document.getElementById('js-admin-login-btn');
-  const logoutBtn   = document.getElementById('js-logout-btn');
+  /* 8 · Suscribir al store en tiempo real → actualiza renderer + lista admin */
+  store.subscribe(pkgs => {
+    renderer.render(pkgs);
+    filter.apply();
+    pkgForm.renderList();
+  });
+
+  /* 9 · Login modal */
+  const loginModal = document.getElementById('js-login-modal');
+  const loginClose = document.getElementById('js-login-close');
+  const loginForm  = document.getElementById('js-login-form');
+  const loginError = document.getElementById('js-login-error');
+  const adminBtn   = document.getElementById('js-admin-login-btn');
+  const logoutBtn  = document.getElementById('js-logout-btn');
 
   function openLoginModal() {
     loginModal.hidden = false;
@@ -902,15 +947,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => { loginModal.hidden = true; }, 310);
   }
 
-  // Show drawer directly if already logged in
   adminBtn.addEventListener('click', () => {
-    if (auth.isLoggedIn()) {
-      drawer.open();
-    } else {
-      openLoginModal();
-    }
+    auth.isLoggedIn() ? drawer.open() : openLoginModal();
   });
-
   loginClose.addEventListener('click', closeLoginModal);
   loginModal.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
 
@@ -918,7 +957,6 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const user = document.getElementById('l-user').value.trim();
     const pass = document.getElementById('l-pass').value;
-
     if (auth.login(user, pass)) {
       loginError.hidden = true;
       closeLoginModal();
@@ -937,250 +975,20 @@ document.addEventListener('DOMContentLoaded', () => {
     pkgForm.reset();
   });
 
-  /* 9 · Hero animations */
-  const heroAnimator = new HeroAnimator();
-  heroAnimator.run();
+  /* 10 · Hero animations */
+  new HeroAnimator().run();
 
-  /* 10 · Scroll reveal */
-  const scrollReveal = new ScrollReveal();
-  scrollReveal.observe();
+  /* 11 · Scroll reveal */
+  new ScrollReveal().observe();
 
-  /* 11 · Nav controller */
+  /* 12 · Nav */
   new NavController(document.getElementById('js-nav'));
 
-  /* 12 · Contact form */
+  /* 13 · Contact form */
   new ContactForm(document.getElementById('js-contact-form'));
 
-  /* 13 · Language toggle */
+  /* 14 · Language toggle */
   new LanguageToggle('js-lang-toggle', 'js-lang-flag', 'js-lang-label');
 
 });
 
-/* ============================================================
-   CLASS: LanguageToggle
-   Responsabilidad: alternar el idioma de la página entre
-   español (ES) e inglés (EN) usando atributos data-i18n.
-============================================================ */
-class LanguageToggle {
-  constructor(btnId, flagId, labelId) {
-    this._btn   = document.getElementById(btnId);
-    this._flag  = document.getElementById(flagId);
-    this._label = document.getElementById(labelId);
-    this._lang  = 'es';
-
-    this._strings = {
-      es: {
-        'nav.inicio':    'Inicio',
-        'nav.traslados': 'Traslados',
-        'nav.agencia':   'Agencia',
-        'nav.consultar': 'Consultar',
-
-        'hero.watermark': 'VIAJES',
-        'hero.breadcrumb':'Agencia de Viajes',
-        'hero.tag':       'Agencia habilitada · Turismo',
-        'hero.title1':    'Nuevo Destino',
-        'hero.title2':    'Viajes.',
-        'hero.desc':      'Agencia de turismo nacional e internacional habilitada. Paquetes a medida, excursiones y viajes grupales para que solo te preocupes de disfrutar.',
-        'hero.badge1':    'Turismo nacional',
-        'hero.badge2':    'Internacional',
-        'hero.badge3':    'Viajes grupales',
-        'hero.badge4':    'Paquetes a medida',
-
-        'filter.all':           'Todos',
-        'filter.nacional':      'Nacional',
-        'filter.internacional': 'Internacional',
-        'filter.egresados':     'Egresados',
-        'filter.grupal':        'Grupal',
-
-        'packages.heading': 'Paquetes <em>turísticos.</em>',
-        'packages.sub':     'Hacé clic en cualquier paquete para ver detalles y consultar.',
-
-        'srv.tag':     'Qué ofrecemos',
-        'srv.heading': 'Servicios de <em>agencia.</em>',
-        'srv.sub':     'Agencia habilitada para operar turismo nacional e internacional.',
-        'srv.nacional.title': 'Turismo nacional',
-        'srv.nacional.1': 'Transporte turístico nacional',
-        'srv.nacional.2': 'Paquetes completos con alojamiento',
-        'srv.nacional.3': 'Viajes grupales y excursiones',
-        'srv.nacional.4': 'Operación de viajes organizados',
-        'srv.inter.title': 'Turismo internacional',
-        'srv.inter.1': 'Paquetes internacionales completos',
-        'srv.inter.2': 'Traslados aéreos y marítimos',
-        'srv.inter.3': 'Servicios receptivos en destino',
-        'srv.inter.4': 'Asistencia al viajero internacional',
-        'srv.receptivo.title': 'Servicios receptivos',
-        'srv.receptivo.1': 'Transfer aeropuerto / hotel',
-        'srv.receptivo.2': 'Excursiones en destino',
-        'srv.receptivo.3': 'Servicios para agencias de turismo',
-        'srv.receptivo.4': 'City tours personalizados',
-
-        'contact.tag':     'Consultá tu viaje',
-        'contact.heading': '¿A dónde querés <em>viajar?</em>',
-        'contact.sub':     'Un asesor te contacta para armar el paquete ideal para vos.',
-
-        'cform.name.label':  'Nombre y apellido',
-        'cform.name.ph':     'Tu nombre',
-        'cform.phone.label': 'Teléfono / WhatsApp',
-        'cform.email.label': 'Email',
-        'cform.type.label':  'Tipo de viaje',
-        'cform.type.opt0':   'Seleccioná…',
-        'cform.type.opt1':   'Nacional',
-        'cform.type.opt2':   'Internacional',
-        'cform.type.opt3':   'Egresados',
-        'cform.type.opt4':   'Tour de compras',
-        'cform.type.opt5':   'Grupal a medida',
-        'cform.type.opt6':   'Otro',
-        'cform.pax.label':   'Cantidad de personas',
-        'cform.pax.opt0':    'Estimado…',
-        'cform.pax.opt1':    '1 – 2 personas',
-        'cform.pax.opt2':    '3 – 5 personas',
-        'cform.pax.opt3':    '6 – 15 personas',
-        'cform.pax.opt4':    '16 – 30 personas',
-        'cform.pax.opt5':    'Más de 30',
-        'cform.dest.label':  'Destino de interés',
-        'cform.dest.ph':     'Ej: Bariloche, Europa…',
-        'cform.date.label':  'Fecha estimada',
-        'cform.date.ph':     'Ej: Julio 2026',
-        'cform.msg.label':   'Contanos más',
-        'cform.msg.ph':      '¿Qué tipo de experiencia buscás?',
-        'cform.submit':      'Consultar mi viaje →',
-
-        'footer.brand': 'Viajes',
-        'footer.copy':  '© 2026 · Agencia habilitada · Rosario, Argentina',
-
-        'modal.includes':    '¿Qué incluye?',
-        'modal.priceLabel':  'Precio desde',
-        'modal.priceNote':   'por persona',
-        'modal.disclaimer':  'Precios sujetos a disponibilidad. Consultá con nuestro equipo.',
-        'modal.consult':     'Consultar este paquete',
-
-        'wsp.tooltip': 'Escribinos',
-      },
-      en: {
-        'nav.inicio':    'Home',
-        'nav.traslados': 'Transfers',
-        'nav.agencia':   'Agency',
-        'nav.consultar': 'Enquire',
-
-        'hero.watermark': 'TRAVEL',
-        'hero.breadcrumb':'Travel Agency',
-        'hero.tag':       'Licensed agency · Tourism',
-        'hero.title1':    'Nuevo Destino',
-        'hero.title2':    'Travel.',
-        'hero.desc':      'Licensed national and international travel agency. Tailor-made packages, excursions and group trips — you just focus on enjoying.',
-        'hero.badge1':    'Domestic tourism',
-        'hero.badge2':    'International',
-        'hero.badge3':    'Group travel',
-        'hero.badge4':    'Tailor-made packages',
-
-        'filter.all':           'All',
-        'filter.nacional':      'Domestic',
-        'filter.internacional': 'International',
-        'filter.egresados':     'School trips',
-        'filter.grupal':        'Group',
-
-        'packages.heading': '<em>Travel</em> packages.',
-        'packages.sub':     'Click on any package to see details and enquire.',
-
-        'srv.tag':     'What we offer',
-        'srv.heading': '<em>Agency</em> services.',
-        'srv.sub':     'Licensed to operate national and international tourism.',
-        'srv.nacional.title': 'Domestic tourism',
-        'srv.nacional.1': 'National tourist transport',
-        'srv.nacional.2': 'Full packages with accommodation',
-        'srv.nacional.3': 'Group travel and excursions',
-        'srv.nacional.4': 'Organised trip operations',
-        'srv.inter.title': 'International tourism',
-        'srv.inter.1': 'Full international packages',
-        'srv.inter.2': 'Air and sea transfers',
-        'srv.inter.3': 'Receptive services at destination',
-        'srv.inter.4': 'International traveller assistance',
-        'srv.receptivo.title': 'Receptive services',
-        'srv.receptivo.1': 'Airport / hotel transfer',
-        'srv.receptivo.2': 'Excursions at destination',
-        'srv.receptivo.3': 'Services for travel agencies',
-        'srv.receptivo.4': 'Personalised city tours',
-
-        'contact.tag':     'Enquire about your trip',
-        'contact.heading': 'Where do you want to <em>travel?</em>',
-        'contact.sub':     'An adviser will contact you to put together the ideal package for you.',
-
-        'cform.name.label':  'Full name',
-        'cform.name.ph':     'Your name',
-        'cform.phone.label': 'Phone / WhatsApp',
-        'cform.email.label': 'Email',
-        'cform.type.label':  'Trip type',
-        'cform.type.opt0':   'Select…',
-        'cform.type.opt1':   'Domestic',
-        'cform.type.opt2':   'International',
-        'cform.type.opt3':   'School trip',
-        'cform.type.opt4':   'Shopping tour',
-        'cform.type.opt5':   'Custom group',
-        'cform.type.opt6':   'Other',
-        'cform.pax.label':   'Number of people',
-        'cform.pax.opt0':    'Estimate…',
-        'cform.pax.opt1':    '1 – 2 people',
-        'cform.pax.opt2':    '3 – 5 people',
-        'cform.pax.opt3':    '6 – 15 people',
-        'cform.pax.opt4':    '16 – 30 people',
-        'cform.pax.opt5':    'More than 30',
-        'cform.dest.label':  'Destination of interest',
-        'cform.dest.ph':     'E.g.: Bariloche, Europe…',
-        'cform.date.label':  'Estimated date',
-        'cform.date.ph':     'E.g.: July 2026',
-        'cform.msg.label':   'Tell us more',
-        'cform.msg.ph':      'What kind of experience are you looking for?',
-        'cform.submit':      'Enquire about my trip →',
-
-        'footer.brand': 'Travel',
-        'footer.copy':  '© 2026 · Licensed agency · Rosario, Argentina',
-
-        'modal.includes':    "What's included?",
-        'modal.priceLabel':  'Price from',
-        'modal.priceNote':   'per person',
-        'modal.disclaimer':  'Prices subject to availability. Contact our team.',
-        'modal.consult':     'Enquire about this package',
-
-        'wsp.tooltip': 'Message us',
-      },
-    };
-
-    if (!this._btn) return;
-    this._btn.addEventListener('click', () => this._toggle());
-    this._btn.addEventListener('touchend', (e) => { e.preventDefault(); this._toggle(); });
-  }
-
-  _toggle() {
-    this._lang = this._lang === 'es' ? 'en' : 'es';
-    this._applyLanguage();
-    this._updateBtn();
-  }
-
-  _applyLanguage() {
-    const dict = this._strings[this._lang];
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      if (dict[key] === undefined) return;
-      if (dict[key].includes('<')) {
-        el.innerHTML = dict[key];
-      } else {
-        el.textContent = dict[key];
-      }
-    });
-    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
-      const key = el.getAttribute('data-i18n-ph');
-      if (dict[key] !== undefined) el.placeholder = dict[key];
-    });
-    document.documentElement.lang = this._lang;
-  }
-
-  _updateBtn() {
-    if (this._lang === 'en') {
-      this._flag.textContent  = '🇦🇷';
-      this._label.textContent = 'ES';
-    } else {
-      this._flag.textContent  = '🇬🇧';
-      this._label.textContent = 'EN';
-    }
-  }
-}
