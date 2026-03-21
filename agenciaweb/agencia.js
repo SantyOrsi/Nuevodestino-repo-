@@ -143,7 +143,6 @@ class PackageStore {
    */
   subscribe(cb) {
     return this._col
-      .orderBy('_createdAt', 'asc')
       .onSnapshot(snapshot => {
         this._cache = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
         cb(this._cache);
