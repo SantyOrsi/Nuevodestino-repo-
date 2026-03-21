@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuevo Destino Traslados</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="traslados.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav class="nav" id="js-nav">
+    <a href="index.html" class="nav__logo">
+      <img
+        src="https://i.ibb.co/67HdS4qF/image-removebg-preview.png"
+        alt="Grupo Nuevo Destino"
+        class="nav__logo-img"
+      />
+    </a>
+    <ul class="nav__links" role="list">
+      <li><a href="index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="traslados.html" class="nav__links--active" data-i18n="nav.traslados">Traslados</a></li>
+      <li><a href="agencia.html" data-i18n="nav.agencia">Agencia</a></li>
+      <li><a href="#cotizar" data-i18n="nav.cotizar">Cotizar</a></li>
+    </ul>
+    <div class="nav__right">
+      <a href="#cotizar" class="nav__cta" data-i18n="nav.cotizar">Cotizar</a>
+      <!-- Language Toggle -->
+      <button class="lang-toggle" id="js-lang-toggle" aria-label="Cambiar idioma">
+        <span class="lang-toggle__flag" id="js-lang-flag">🇬🇧</span>
+        <span class="lang-toggle__label" id="js-lang-label">EN</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero__bg" id="js-hero-bg" aria-hidden="true"></div>
+    <div class="hero__content">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="index.html" class="breadcrumb__link" data-i18n="nav.inicio">Inicio</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+        <span class="breadcrumb__current" data-i18n="nav.traslados">Traslados</span>
+      </nav>
+      <p class="hero__tag" id="js-hero-tag" data-i18n="hero.tag">Área de movilidad</p>
+      <h1 class="hero__title" id="hero-heading">
+        <span class="hero__title-line" data-i18n="hero.title1">Nuevo Destino</span>
+        <span class="hero__title-line"><em data-i18n="hero.title2">Traslados.</em></span>
+      </h1>
+      <p class="hero__desc" id="js-hero-desc" data-i18n="hero.desc">
+        Soluciones profesionales de transporte para empresas, grupos y eventos.
+        Flota propia 0km, conductores habilitados y soporte operativo las 24 horas del día.
+      </p>
+      <ul class="hero__features" id="js-hero-features" role="list">
+        <li class="hero__feature">
+          <span class="hero__feature-dot" aria-hidden="true"></span>
+          <strong data-i18n="hero.feat1">Soporte 24/7</strong>
+        </li>
+        <li class="hero__feature">
+          <span class="hero__feature-dot" aria-hidden="true"></span>
+          <strong data-i18n="hero.feat2">Monitoreo satelital</strong>
+        </li>
+        <li class="hero__feature">
+          <span class="hero__feature-dot" aria-hidden="true"></span>
+          <strong data-i18n="hero.feat3">Flota propia 0km</strong>
+        </li>
+        <li class="hero__feature">
+          <span class="hero__feature-dot" aria-hidden="true"></span>
+          <strong data-i18n="hero.feat4">Choferes profesionales</strong>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FLEET STRIP
+  ============================================================ -->
+  <div class="fleet-strip" role="list" aria-label="Tipos de unidades disponibles">
+    <div class="fleet-strip__item" role="listitem">
+      <span class="fleet-strip__icon" aria-hidden="true">🚗</span> <span data-i18n="fleet.sedan">Sedán ejecutivo</span>
+    </div>
+    <div class="fleet-strip__item" role="listitem">
+      <span class="fleet-strip__icon" aria-hidden="true">🚐</span> <span data-i18n="fleet.van">Van / Combi</span>
+    </div>
+    <div class="fleet-strip__item" role="listitem">
+      <span class="fleet-strip__icon" aria-hidden="true">🚌</span> <span data-i18n="fleet.minibus">Minibús</span>
+    </div>
+    <div class="fleet-strip__item" role="listitem">
+      <span class="fleet-strip__icon" aria-hidden="true">🚍</span> <span data-i18n="fleet.micro">Micro interurbano</span>
+    </div>
+    <div class="fleet-strip__item" role="listitem">
+      <span class="fleet-strip__icon" aria-hidden="true">🚎</span> <span data-i18n="fleet.double">Doble piso</span>
+    </div>
+    <div class="fleet-strip__item" role="listitem">
+      <span class="fleet-strip__icon" aria-hidden="true">🛰️</span> <span data-i18n="fleet.gps">Monitoreo GPS</span>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SERVICES SECTION
+  ============================================================ -->
+  <section class="section" aria-labelledby="services-heading">
+    <p class="section__tag" data-reveal="up" data-i18n="services.tag">Qué ofrecemos</p>
+    <h2 class="section__heading" id="services-heading" data-reveal="up" data-i18n="services.heading">
+      Nuestros <em>servicios.</em>
+    </h2>
+    <p class="section__sub" data-reveal="up" data-i18n="services.sub">
+      Cubrimos todas las necesidades de traslado con vehículos adecuados para cada caso
+      y conductores con habilitaciones vigentes.
+    </p>
+    <div class="services-grid" data-reveal="up">
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🏢</span>
+        <h3 class="service-card__title" data-i18n="srv.corp.title">Corporativo</h3>
+        <ul class="service-card__list">
+          <li data-i18n="srv.corp.1">Servicios regulares con convenio</li>
+          <li data-i18n="srv.corp.2">Traslados ejecutivos</li>
+          <li data-i18n="srv.corp.3">Movilidad para eventos empresariales</li>
+          <li data-i18n="srv.corp.4">Soluciones de transporte a medida</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🚐</span>
+        <h3 class="service-card__title" data-i18n="srv.rental.title">Alquiler de unidades</h3>
+        <ul class="service-card__list">
+          <li data-i18n="srv.rental.1">Alquiler de vans / combis</li>
+          <li data-i18n="srv.rental.2">Minibuses 15 a 28 pasajeros</li>
+          <li data-i18n="srv.rental.3">Micros interurbanos</li>
+          <li data-i18n="srv.rental.4">Larga distancia piso elevado / doble piso</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">📦</span>
+        <h3 class="service-card__title" data-i18n="srv.group.title">Grandes contingentes</h3>
+        <ul class="service-card__list">
+          <li data-i18n="srv.group.1">Gestión de múltiples unidades</li>
+          <li data-i18n="srv.group.2">Coordinación de horarios y rutas</li>
+          <li data-i18n="srv.group.3">Servicios de tercerización</li>
+          <li data-i18n="srv.group.4">Logística de transporte integral</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PREMIUM BANNER
+  ============================================================ -->
+  <section class="section section--alt" aria-labelledby="premium-heading">
+    <div class="premium-banner" data-reveal="up">
+      <div class="premium-banner__left">
+        <p class="premium-banner__tag" data-i18n="premium.tag">Servicio exclusivo</p>
+        <h2 class="premium-banner__heading" id="premium-heading" data-i18n="premium.heading">
+          Nuevo Destino <em>Premium.</em>
+        </h2>
+        <p class="premium-banner__desc" data-i18n="premium.desc">
+          Experiencia de traslado de nivel internacional para ejecutivos, celebridades
+          y eventos de alto perfil. Discreción, confort y puntualidad sin compromisos.
+        </p>
+        <a
+          href="https://wa.me/5493413341317?text=Hola!%20Quiero%20consultar%20Premium."
+          class="btn btn--premium"
+          target="_blank"
+          rel="noopener noreferrer"
+          data-i18n="premium.btn"
+        >
+          Consultar Premium →
+        </a>
+      </div>
+      <ul class="premium-list" role="list">
+        <li class="premium-list__item">
+          <span class="premium-list__icon" aria-hidden="true">🌟</span>
+          <div>
+            <h4 class="premium-list__title" data-i18n="premium.vip.title">Servicios VIP Personalizados</h4>
+            <p class="premium-list__desc" data-i18n="premium.vip.desc">Unidades 0km de gama alta con atención exclusiva y protocolo premium.</p>
+          </div>
+        </li>
+        <li class="premium-list__item">
+          <span class="premium-list__icon" aria-hidden="true">🗺️</span>
+          <div>
+            <h4 class="premium-list__title" data-i18n="premium.routes.title">Asesoramiento y armado de rutas</h4>
+            <p class="premium-list__desc" data-i18n="premium.routes.desc">Planificación logística a medida para cada traslado, sin importar la complejidad.</p>
+          </div>
+        </li>
+        <li class="premium-list__item">
+          <span class="premium-list__icon" aria-hidden="true">🎤</span>
+          <div>
+            <h4 class="premium-list__title" data-i18n="premium.celeb.title">Traslado de celebridades</h4>
+            <p class="premium-list__desc" data-i18n="premium.celeb.desc">Experiencia en traslados con o sin custodia privada o policial en ruta.</p>
+          </div>
+        </li>
+        <li class="premium-list__item">
+          <span class="premium-list__icon" aria-hidden="true">🔒</span>
+          <div>
+            <h4 class="premium-list__title" data-i18n="premium.coord.title">Coordinación VIP en ruta</h4>
+            <p class="premium-list__desc" data-i18n="premium.coord.desc">Protocolos de seguridad, discreción total y comunicación constante.</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CORPORATE SOLUTIONS
+  ============================================================ -->
+  <section class="section" aria-labelledby="corporate-heading">
+    <p class="section__tag" data-reveal="up" data-i18n="corp.tag">Soluciones empresariales</p>
+    <h2 class="section__heading" id="corporate-heading" data-reveal="up" data-i18n="corp.heading">
+      Diferenciales <em>corporativos.</em>
+    </h2>
+    <p class="section__sub" data-reveal="up" data-i18n="corp.sub">
+      Diseñamos soluciones a medida para optimizar la movilidad de tu capital humano
+      con la máxima eficiencia operativa.
+    </p>
+    <div class="corporate-grid" data-reveal="up">
+      <div class="corporate-card">
+        <div class="corporate-card__icon" aria-hidden="true">👥</div>
+        <h3 class="corporate-card__title" data-i18n="corp.staff.title">Traslado de personal</h3>
+        <p class="corporate-card__desc" data-i18n="corp.staff.desc">Servicios diseñados para garantizar seguridad, puntualidad y eficiencia en el traslado diario de colaboradores, con rutas y horarios personalizados.</p>
+      </div>
+      <div class="corporate-card">
+        <div class="corporate-card__icon" aria-hidden="true">🔗</div>
+        <h3 class="corporate-card__title" data-i18n="corp.logistics.title">Logística integral</h3>
+        <p class="corporate-card__desc" data-i18n="corp.logistics.desc">Análisis, diseño e implementación de recorridos empresariales con mejora continua de procesos y rendición periódica de indicadores.</p>
+      </div>
+      <div class="corporate-card">
+        <div class="corporate-card__icon" aria-hidden="true">📍</div>
+        <h3 class="corporate-card__title" data-i18n="corp.routes.title">Optimización de rutas</h3>
+        <p class="corporate-card__desc" data-i18n="corp.routes.desc">Diagnóstico personalizado para reducir tiempos de traslado, minimizar costos y optimizar el uso de recursos críticos.</p>
+      </div>
+      <div class="corporate-card">
+        <div class="corporate-card__icon" aria-hidden="true">🛰️</div>
+        <h3 class="corporate-card__title" data-i18n="corp.satellite.title">Monitoreo satelital</h3>
+        <p class="corporate-card__desc" data-i18n="corp.satellite.desc">Seguimiento en tiempo real de todas las unidades para ajustes inmediatos ante cualquier contingencia. Reportes disponibles 24/7.</p>
+      </div>
+    </div>
+    <div class="support-badge" data-reveal="up">
+      <span class="support-badge__icon" aria-hidden="true">⏱️</span>
+      <div>
+        <p class="support-badge__title" data-i18n="corp.support.title">Soporte operativo 24/7</p>
+        <small class="support-badge__sub" data-i18n="corp.support.sub">Centro de atención disponible los 365 días del año</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       SPECIAL SERVICES
+  ============================================================ -->
+  <section class="section section--alt" aria-labelledby="special-heading">
+    <p class="section__tag" data-reveal="up" data-i18n="special.tag">Servicios especializados</p>
+    <h2 class="section__heading" id="special-heading" data-reveal="up" data-i18n="special.heading">
+      Servicios <em>especiales.</em>
+    </h2>
+    <p class="section__sub" data-reveal="up" data-i18n="special.sub">
+      Soluciones integrales de transporte que se adaptan a la logística de cada
+      encuentro, cada grupo, cada evento.
+    </p>
+    <div class="specials-grid" data-reveal="up">
+      <div class="special-card">
+        <span class="special-card__icon" aria-hidden="true">🗺️</span>
+        <div>
+          <h3 class="special-card__title" data-i18n="sp.tourism.title">Turismo a medida</h3>
+          <p class="special-card__desc" data-i18n="sp.tourism.desc">Traslados receptivos y viajes personalizados para grupos con confort y flexibilidad horaria total.</p>
+        </div>
+      </div>
+      <div class="special-card">
+        <span class="special-card__icon" aria-hidden="true">🥂</span>
+        <div>
+          <h3 class="special-card__title" data-i18n="sp.events.title">Eventos sociales &amp; corporativos</h3>
+          <p class="special-card__desc" data-i18n="sp.events.desc">Logística para casamientos, congresos y fiestas. Coordinación integral de invitados y personal.</p>
+        </div>
+      </div>
+      <div class="special-card">
+        <span class="special-card__icon" aria-hidden="true">🎒</span>
+        <div>
+          <h3 class="special-card__title" data-i18n="sp.school.title">Excursiones escolares</h3>
+          <p class="special-card__desc" data-i18n="sp.school.desc">Transporte seguro para instituciones educativas. Unidades habilitadas y choferes con antecedentes verificados.</p>
+        </div>
+      </div>
+      <div class="special-card">
+        <span class="special-card__icon" aria-hidden="true">🏆</span>
+        <div>
+          <h3 class="special-card__title" data-i18n="sp.sports.title">Clubes &amp; deportes</h3>
+          <p class="special-card__desc" data-i18n="sp.sports.desc">Traslados para delegaciones deportivas con amplio espacio para equipaje y flexibilidad horaria.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       OPERATIONAL CENTER
+  ============================================================ -->
+  <section class="section" aria-labelledby="ops-heading">
+    <p class="section__tag" data-reveal="up" data-i18n="ops.tag">Centro operativo</p>
+    <h2 class="section__heading" id="ops-heading" data-reveal="up" data-i18n="ops.heading">
+      Nuevo Destino <em>Servicios.</em>
+    </h2>
+    <p class="section__sub" data-reveal="up" data-i18n="ops.sub">
+      +5000 m² propios para mecánica pesada, preventiva, asistencia en ruta, lavadero y
+      guarda de unidades con vigilancia 24hs.
+    </p>
+    <div class="services-grid" data-reveal="up">
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🔧</span>
+        <h3 class="service-card__title" data-i18n="ops.mec.title">Mecánica</h3>
+        <ul class="service-card__list">
+          <li data-i18n="ops.mec.1">Asistencia 24hs en ruta</li>
+          <li data-i18n="ops.mec.2">Mecánica preventiva propia</li>
+          <li data-i18n="ops.mec.3">Repuestos y cristales</li>
+          <li data-i18n="ops.mec.4">Taller de chapa y pintura</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🚛</span>
+        <h3 class="service-card__title" data-i18n="ops.crane.title">Grúas &amp; auxilio</h3>
+        <ul class="service-card__list">
+          <li data-i18n="ops.crane.1">Servicio de grúas</li>
+          <li data-i18n="ops.crane.2">Asistencia mecánica pesada</li>
+          <li data-i18n="ops.crane.3">Cobertura en ruta nacional</li>
+          <li data-i18n="ops.crane.4">Respuesta inmediata</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🏗️</span>
+        <h3 class="service-card__title" data-i18n="ops.center.title">Centro operativo</h3>
+        <ul class="service-card__list">
+          <li data-i18n="ops.center.1">Lavadero de unidades</li>
+          <li data-i18n="ops.center.2">Mantenimiento de flota</li>
+          <li data-i18n="ops.center.3">Guarda de unidades</li>
+          <li data-i18n="ops.center.4">Servicios a terceros</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       QUOTE FORM
+  ============================================================ -->
+  <section class="section section--alt quote-section" id="cotizar" aria-labelledby="quote-heading">
+    <div class="quote-section__inner">
+      <p class="section__tag section__tag--center" data-reveal="up" data-i18n="quote.tag">Cotizá tu servicio</p>
+      <h2 class="section__heading section__heading--center" id="quote-heading" data-reveal="up" data-i18n="quote.heading">
+        Pedí tu <em>cotización.</em>
+      </h2>
+      <p class="section__sub section__sub--center" data-reveal="up" data-i18n="quote.sub">
+        Completá el formulario y te respondemos en menos de 24 horas hábiles.
+      </p>
+
+      <form class="quote-form" id="js-quote-form" novalidate data-reveal="up">
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-field__label" for="q-name" data-i18n="qform.name.label">Nombre y apellido</label>
+            <input class="form-field__input" id="q-name" type="text" placeholder="Tu nombre completo" required data-i18n-ph="qform.name.ph" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="q-company" data-i18n="qform.company.label">Empresa (opcional)</label>
+            <input class="form-field__input" id="q-company" type="text" placeholder="Nombre de empresa" data-i18n-ph="qform.company.ph" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-field__label" for="q-email" data-i18n="qform.email.label">Email</label>
+            <input class="form-field__input" id="q-email" type="email" placeholder="correo@empresa.com" required />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="q-phone" data-i18n="qform.phone.label">Teléfono / WhatsApp</label>
+            <input class="form-field__input" id="q-phone" type="tel" placeholder="+54 341..." />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-field__label" for="q-service" data-i18n="qform.service.label">Tipo de servicio</label>
+            <select class="form-field__input" id="q-service">
+              <option value="" data-i18n="qform.service.opt0">Seleccioná…</option>
+              <option data-i18n="qform.service.opt1">Traslado corporativo regular</option>
+              <option data-i18n="qform.service.opt2">Traslado ejecutivo</option>
+              <option data-i18n="qform.service.opt3">Servicio Premium / VIP</option>
+              <option data-i18n="qform.service.opt4">Alquiler de micro / van</option>
+              <option data-i18n="qform.service.opt5">Evento social / corporativo</option>
+              <option data-i18n="qform.service.opt6">Excursión escolar</option>
+              <option data-i18n="qform.service.opt7">Club / deporte</option>
+              <option data-i18n="qform.service.opt8">Servicio mecánica / grúa</option>
+              <option data-i18n="qform.service.opt9">Otro</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="q-pax" data-i18n="qform.pax.label">Cantidad de pasajeros</label>
+            <select class="form-field__input" id="q-pax">
+              <option value="" data-i18n="qform.pax.opt0">Estimado…</option>
+              <option data-i18n="qform.pax.opt1">1 – 4 personas</option>
+              <option data-i18n="qform.pax.opt2">5 – 15 personas</option>
+              <option data-i18n="qform.pax.opt3">16 – 30 personas</option>
+              <option data-i18n="qform.pax.opt4">31 – 50 personas</option>
+              <option data-i18n="qform.pax.opt5">Más de 50 personas</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="q-detail" data-i18n="qform.detail.label">Detalle del traslado</label>
+          <textarea
+            class="form-field__input form-field__input--textarea"
+            id="q-detail"
+            placeholder="Origen, destino, fecha, horario y cualquier detalle que nos ayude a cotizar mejor…"
+            data-i18n-ph="qform.detail.ph"
+          ></textarea>
+        </div>
+        <button class="btn btn--submit btn--full" type="submit">
+          <span data-i18n="qform.submit">Solicitar cotización →</span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <span class="footer__brand" data-i18n="footer.brand">Nuevo Destino Traslados</span>
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="index.html" data-i18n="nav.inicio">Inicio</a>
+      <a href="agencia.html" data-i18n="nav.agencia">Agencia</a>
+      <a href="#cotizar" data-i18n="nav.cotizar">Cotizar</a>
+    </nav>
+    <small class="footer__copy">© 2026 · Rosario, Argentina</small>
+  </footer>
+
+  <!-- ============================================================
+       WHATSAPP FLOAT BUTTON
+  ============================================================ -->
+  <a
+    class="wsp-btn"
+    href="https://wa.me/5493413341317?text=Hola!%20Quiero%20cotizar%20un%20traslado."
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Cotizar por WhatsApp"
+  >
+    <span class="wsp-btn__tooltip" data-i18n="wsp.tooltip">Cotizar por WhatsApp</span>
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <script src="traslados.js"></script>
+</body>
+</html>

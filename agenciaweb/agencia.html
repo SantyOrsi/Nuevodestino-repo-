@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nuevo Destino Viajes – Agencia de Turismo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="agencia.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav class="nav" id="js-nav">
+    <a href="index.html" class="nav__logo">
+      <img src="https://i.ibb.co/67HdS4qF/image-removebg-preview.png" alt="Nuevo Destino" class="nav__logo-img" />
+    </a>
+    <ul class="nav__links">
+      <li><a href="index.html" data-i18n="nav.inicio">Inicio</a></li>
+      <li><a href="traslados.html" data-i18n="nav.traslados">Traslados</a></li>
+      <li><a href="agencia.html" class="nav__links--active" data-i18n="nav.agencia">Agencia</a></li>
+      <li><a href="#consulta" data-i18n="nav.consultar">Consultar</a></li>
+    </ul>
+    <div class="nav__actions">
+      <a href="#consulta" class="nav__cta" data-i18n="nav.consultar">Consultar</a>
+      <button class="nav__admin-btn" id="js-admin-login-btn">Admin</button>
+      <!-- Language Toggle -->
+      <button class="lang-toggle" id="js-lang-toggle" aria-label="Cambiar idioma">
+        <span class="lang-toggle__flag" id="js-lang-flag">🇬🇧</span>
+        <span class="lang-toggle__label" id="js-lang-label">EN</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero">
+    <div class="hero__watermark" aria-hidden="true" data-i18n="hero.watermark">VIAJES</div>
+    <div class="hero__content">
+      <nav class="breadcrumb" aria-label="Ruta de navegación">
+        <a href="index.html" class="breadcrumb__link" data-i18n="nav.inicio">Inicio</a>
+        <span class="breadcrumb__sep" aria-hidden="true">/</span>
+        <span class="breadcrumb__current" data-i18n="hero.breadcrumb">Agencia de Viajes</span>
+      </nav>
+      <p class="hero__tag" id="js-hero-tag" data-i18n="hero.tag">Agencia habilitada · Turismo</p>
+      <h1 class="hero__title">
+        <span class="hero__title-line" data-i18n="hero.title1">Nuevo Destino</span>
+        <span class="hero__title-line"><em data-i18n="hero.title2">Viajes.</em></span>
+      </h1>
+      <p class="hero__desc" id="js-hero-desc" data-i18n="hero.desc">
+        Agencia de turismo nacional e internacional habilitada. Paquetes a medida,
+        excursiones y viajes grupales para que solo te preocupes de disfrutar.
+      </p>
+      <div class="hero__badges" id="js-hero-badges">
+        <span class="hero__badge" data-i18n="hero.badge1">Turismo nacional</span>
+        <span class="hero__badge" data-i18n="hero.badge2">Internacional</span>
+        <span class="hero__badge" data-i18n="hero.badge3">Viajes grupales</span>
+        <span class="hero__badge" data-i18n="hero.badge4">Paquetes a medida</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PACKAGE FILTER TABS
+  ============================================================ -->
+  <div class="filter-bar" role="tablist" aria-label="Filtrar paquetes">
+    <button class="filter-bar__tab filter-bar__tab--active" data-filter="all"           role="tab" aria-selected="true"  data-i18n="filter.all">Todos</button>
+    <button class="filter-bar__tab"                         data-filter="nacional"      role="tab" aria-selected="false" data-i18n="filter.nacional">Nacional</button>
+    <button class="filter-bar__tab"                         data-filter="internacional" role="tab" aria-selected="false" data-i18n="filter.internacional">Internacional</button>
+    <button class="filter-bar__tab"                         data-filter="egresados"     role="tab" aria-selected="false" data-i18n="filter.egresados">Egresados</button>
+    <button class="filter-bar__tab"                         data-filter="grupal"        role="tab" aria-selected="false" data-i18n="filter.grupal">Grupal</button>
+  </div>
+
+  <!-- ============================================================
+       PACKAGES SECTION
+  ============================================================ -->
+  <section class="packages" id="packages">
+    <header class="packages__header">
+      <h2 class="packages__heading" data-i18n="packages.heading">Paquetes <em>turísticos.</em></h2>
+      <p class="packages__subheading" data-i18n="packages.sub">Hacé clic en cualquier paquete para ver detalles y consultar.</p>
+    </header>
+    <div class="package-grid" id="js-package-grid" role="list"></div>
+  </section>
+
+  <!-- ============================================================
+       AGENCY SERVICES
+  ============================================================ -->
+  <section class="services services--alt" aria-labelledby="services-heading">
+    <p class="section-tag" data-reveal data-i18n="srv.tag">Qué ofrecemos</p>
+    <h2 class="section-heading" id="services-heading" data-reveal data-i18n="srv.heading">Servicios de <em>agencia.</em></h2>
+    <p class="section-sub" data-reveal data-i18n="srv.sub">Agencia habilitada para operar turismo nacional e internacional.</p>
+    <div class="services__grid" data-reveal>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">✈️</span>
+        <h3 class="service-card__title" data-i18n="srv.nacional.title">Turismo nacional</h3>
+        <ul class="service-card__list">
+          <li data-i18n="srv.nacional.1">Transporte turístico nacional</li>
+          <li data-i18n="srv.nacional.2">Paquetes completos con alojamiento</li>
+          <li data-i18n="srv.nacional.3">Viajes grupales y excursiones</li>
+          <li data-i18n="srv.nacional.4">Operación de viajes organizados</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🌍</span>
+        <h3 class="service-card__title" data-i18n="srv.inter.title">Turismo internacional</h3>
+        <ul class="service-card__list">
+          <li data-i18n="srv.inter.1">Paquetes internacionales completos</li>
+          <li data-i18n="srv.inter.2">Traslados aéreos y marítimos</li>
+          <li data-i18n="srv.inter.3">Servicios receptivos en destino</li>
+          <li data-i18n="srv.inter.4">Asistencia al viajero internacional</li>
+        </ul>
+      </div>
+      <div class="service-card">
+        <span class="service-card__icon" aria-hidden="true">🏨</span>
+        <h3 class="service-card__title" data-i18n="srv.receptivo.title">Servicios receptivos</h3>
+        <ul class="service-card__list">
+          <li data-i18n="srv.receptivo.1">Transfer aeropuerto / hotel</li>
+          <li data-i18n="srv.receptivo.2">Excursiones en destino</li>
+          <li data-i18n="srv.receptivo.3">Servicios para agencias de turismo</li>
+          <li data-i18n="srv.receptivo.4">City tours personalizados</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CONTACT FORM
+  ============================================================ -->
+  <section class="contact contact--alt" id="consulta">
+    <div class="contact__inner">
+      <p class="section-tag" data-reveal data-i18n="contact.tag">Consultá tu viaje</p>
+      <h2 class="section-heading" data-reveal data-i18n="contact.heading">¿A dónde querés <em>viajar?</em></h2>
+      <p class="section-sub section-sub--center" data-reveal data-i18n="contact.sub">Un asesor te contacta para armar el paquete ideal para vos.</p>
+      <form class="contact-form" id="js-contact-form" novalidate data-reveal>
+        <div class="contact-form__row">
+          <div class="form-field">
+            <label class="form-field__label" for="c-name" data-i18n="cform.name.label">Nombre y apellido</label>
+            <input class="form-field__input" id="c-name" type="text" placeholder="Tu nombre" required data-i18n-ph="cform.name.ph" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="c-phone" data-i18n="cform.phone.label">Teléfono / WhatsApp</label>
+            <input class="form-field__input" id="c-phone" type="tel" placeholder="+54 341..." />
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="c-email" data-i18n="cform.email.label">Email</label>
+          <input class="form-field__input" id="c-email" type="email" placeholder="correo@email.com" required />
+        </div>
+        <div class="contact-form__row">
+          <div class="form-field">
+            <label class="form-field__label" for="c-type" data-i18n="cform.type.label">Tipo de viaje</label>
+            <select class="form-field__input" id="c-type">
+              <option value="" data-i18n="cform.type.opt0">Seleccioná…</option>
+              <option data-i18n="cform.type.opt1">Nacional</option>
+              <option data-i18n="cform.type.opt2">Internacional</option>
+              <option data-i18n="cform.type.opt3">Egresados</option>
+              <option data-i18n="cform.type.opt4">Tour de compras</option>
+              <option data-i18n="cform.type.opt5">Grupal a medida</option>
+              <option data-i18n="cform.type.opt6">Otro</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="c-pax" data-i18n="cform.pax.label">Cantidad de personas</label>
+            <select class="form-field__input" id="c-pax">
+              <option value="" data-i18n="cform.pax.opt0">Estimado…</option>
+              <option data-i18n="cform.pax.opt1">1 – 2 personas</option>
+              <option data-i18n="cform.pax.opt2">3 – 5 personas</option>
+              <option data-i18n="cform.pax.opt3">6 – 15 personas</option>
+              <option data-i18n="cform.pax.opt4">16 – 30 personas</option>
+              <option data-i18n="cform.pax.opt5">Más de 30</option>
+            </select>
+          </div>
+        </div>
+        <div class="contact-form__row">
+          <div class="form-field">
+            <label class="form-field__label" for="c-dest" data-i18n="cform.dest.label">Destino de interés</label>
+            <input class="form-field__input" id="c-dest" type="text" placeholder="Ej: Bariloche, Europa…" data-i18n-ph="cform.dest.ph" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="c-date" data-i18n="cform.date.label">Fecha estimada</label>
+            <input class="form-field__input" id="c-date" type="text" placeholder="Ej: Julio 2026" data-i18n-ph="cform.date.ph" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="c-msg" data-i18n="cform.msg.label">Contanos más</label>
+          <textarea class="form-field__input form-field__input--textarea" id="c-msg" placeholder="¿Qué tipo de experiencia buscás?" data-i18n-ph="cform.msg.ph"></textarea>
+        </div>
+        <button class="btn btn--primary btn--full" type="submit">
+          <span data-i18n="cform.submit">Consultar mi viaje →</span>
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <span class="footer__brand">Nuevo Destino <em data-i18n="footer.brand">Viajes</em></span>
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="index.html" data-i18n="nav.inicio">Inicio</a>
+      <a href="traslados.html" data-i18n="nav.traslados">Traslados</a>
+      <a href="#consulta" data-i18n="nav.consultar">Consultar</a>
+    </nav>
+    <small class="footer__copy" data-i18n="footer.copy">© 2026 · Agencia habilitada · Rosario, Argentina</small>
+  </footer>
+
+  <!-- ============================================================
+       PACKAGE DETAIL MODAL
+  ============================================================ -->
+  <div class="modal-overlay" id="js-modal" role="dialog" aria-modal="true" aria-labelledby="js-modal-title" hidden>
+    <div class="modal">
+      <button class="modal__close" id="js-modal-close" aria-label="Cerrar">✕</button>
+      <div class="modal__thumb" id="js-modal-thumb">
+        <span class="modal__thumb-emoji" id="js-modal-emoji" aria-hidden="true"></span>
+      </div>
+      <div class="modal__body">
+        <p class="modal__category" id="js-modal-cat"></p>
+        <h2 class="modal__title" id="js-modal-title"></h2>
+        <div class="modal__meta" id="js-modal-meta"></div>
+        <p class="modal__desc" id="js-modal-desc"></p>
+        <div class="modal__includes">
+          <h4 class="modal__includes-title" data-i18n="modal.includes">¿Qué incluye?</h4>
+          <ul class="modal__includes-list" id="js-modal-includes"></ul>
+        </div>
+        <div class="modal__price-box">
+          <div>
+            <p class="modal__price-label" data-i18n="modal.priceLabel">Precio desde</p>
+            <p class="modal__price" id="js-modal-price"></p>
+            <p class="modal__price-note" data-i18n="modal.priceNote">por persona</p>
+          </div>
+          <p class="modal__price-disclaimer" data-i18n="modal.disclaimer">Precios sujetos a disponibilidad. Consultá con nuestro equipo.</p>
+        </div>
+        <div class="modal__actions">
+          <button class="btn btn--primary btn--flex" id="js-modal-consult" data-i18n="modal.consult">Consultar este paquete</button>
+          <a class="btn btn--whatsapp" id="js-modal-wsp" href="#" target="_blank" rel="noopener">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN LOGIN MODAL
+  ============================================================ -->
+  <div class="modal-overlay modal-overlay--login" id="js-login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title" hidden>
+    <div class="modal modal--login">
+      <button class="modal__close" id="js-login-close" aria-label="Cerrar">✕</button>
+      <div class="modal__body modal__body--login">
+        <p class="modal__category">Panel de administración</p>
+        <h2 class="modal__title" id="login-title">Iniciar <em>sesión</em></h2>
+        <p class="login__error" id="js-login-error" hidden>Usuario o contraseña incorrectos.</p>
+        <form class="login-form" id="js-login-form" novalidate>
+          <div class="form-field">
+            <label class="form-field__label" for="l-user">Usuario</label>
+            <input class="form-field__input" id="l-user" type="text" placeholder="admin" autocomplete="username" required />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="l-pass">Contraseña</label>
+            <input class="form-field__input" id="l-pass" type="password" placeholder="••••••" autocomplete="current-password" required />
+          </div>
+          <button class="btn btn--primary btn--full" type="submit"><span>Ingresar →</span></button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       ADMIN PANEL DRAWER
+  ============================================================ -->
+  <div class="admin-drawer" id="js-admin-drawer" aria-label="Panel de administración" hidden>
+    <div class="admin-drawer__header">
+      <h3 class="admin-drawer__title">Panel <em>Admin</em></h3>
+      <div class="admin-drawer__header-actions">
+        <button class="admin-drawer__logout" id="js-logout-btn">Salir</button>
+        <button class="admin-drawer__close" id="js-drawer-close" aria-label="Cerrar panel">✕</button>
+      </div>
+    </div>
+    <div class="admin-drawer__body">
+      <form class="pkg-form" id="js-pkg-form" novalidate>
+        <input type="hidden" id="pf-id" />
+        <div class="pkg-form__section-label">Imagen del paquete</div>
+        <div class="img-drop-zone" id="js-img-drop-zone">
+          <div class="img-drop-zone__preview" id="js-img-preview">
+            <span class="img-drop-zone__icon" aria-hidden="true">🖼️</span>
+            <p class="img-drop-zone__hint">Arrastrá una imagen o hacé clic</p>
+          </div>
+          <input type="file" id="pf-img-file" accept="image/*" class="img-drop-zone__input" aria-label="Subir imagen" />
+        </div>
+        <div class="form-field form-field--url">
+          <label class="form-field__label" for="pf-img-url">URL de imagen (alternativa)</label>
+          <input class="form-field__input" id="pf-img-url" type="url" placeholder="https://..." />
+        </div>
+        <input type="hidden" id="pf-img-data" />
+        <div class="form-field">
+          <label class="form-field__label" for="pf-title">Nombre del paquete *</label>
+          <input class="form-field__input" id="pf-title" type="text" placeholder="Ej: Bariloche Clásico" required />
+        </div>
+        <div class="pkg-form__row">
+          <div class="form-field">
+            <label class="form-field__label" for="pf-cat">Categoría *</label>
+            <select class="form-field__input" id="pf-cat" required>
+              <option value="">Seleccioná…</option>
+              <option value="nacional">Nacional</option>
+              <option value="internacional">Internacional</option>
+              <option value="egresados">Egresados</option>
+              <option value="grupal">Grupal</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="pf-cat-label">Subtítulo</label>
+            <input class="form-field__input" id="pf-cat-label" type="text" placeholder="Ej: Nacional · Patagonia" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label">Ícono (si no hay imagen)</label>
+          <div class="emoji-picker" id="js-emoji-picker" role="radiogroup" aria-label="Elegir ícono"></div>
+          <input type="hidden" id="pf-emoji" value="✈️" />
+        </div>
+        <div class="pkg-form__row">
+          <div class="form-field">
+            <label class="form-field__label" for="pf-precio">Precio *</label>
+            <input class="form-field__input" id="pf-precio" type="text" placeholder="$280.000 o USD 1.400" required />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="pf-dur">Duración</label>
+            <input class="form-field__input" id="pf-dur" type="text" placeholder="6 días / 5 noches" />
+          </div>
+        </div>
+        <div class="pkg-form__row">
+          <div class="form-field">
+            <label class="form-field__label" for="pf-pers">Personas</label>
+            <input class="form-field__input" id="pf-pers" type="text" placeholder="Mínimo 2 personas" />
+          </div>
+          <div class="form-field">
+            <label class="form-field__label" for="pf-sal">Salidas</label>
+            <input class="form-field__input" id="pf-sal" type="text" placeholder="Salidas todos los viernes" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="pf-short">Descripción corta (card) *</label>
+          <input class="form-field__input" id="pf-short" type="text" placeholder="Frase breve visible en la card" required />
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="pf-desc">Descripción completa (modal) *</label>
+          <textarea class="form-field__input form-field__input--textarea" id="pf-desc" placeholder="Descripción detallada para el modal…" required></textarea>
+        </div>
+        <div class="form-field">
+          <label class="form-field__label">Qué incluye</label>
+          <ul class="includes-editor" id="js-includes-editor"></ul>
+          <button type="button" class="btn btn--dashed" id="js-add-include">+ Agregar ítem</button>
+        </div>
+        <div class="pkg-form__actions">
+          <button type="submit" class="btn btn--primary btn--full" id="js-save-btn">
+            <span id="js-save-label">Guardar paquete →</span>
+          </button>
+          <button type="button" class="btn btn--ghost btn--full" id="js-cancel-edit" hidden>Cancelar edición</button>
+        </div>
+      </form>
+      <div class="admin-pkg-list">
+        <h4 class="admin-pkg-list__title">Paquetes cargados</h4>
+        <ul class="admin-pkg-list__items" id="js-admin-list"></ul>
+        <p class="admin-pkg-list__empty" id="js-admin-empty">Todavía no hay paquetes cargados.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAWER BACKDROP -->
+  <div class="admin-backdrop" id="js-admin-backdrop" hidden></div>
+
+  <!-- WHATSAPP FLOAT BUTTON -->
+  <a class="wsp-btn" href="https://wa.me/5493413341317?text=Hola!%20Quiero%20consultar%20paquetes%20turísticos." target="_blank" rel="noopener" aria-label="Consultar por WhatsApp">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span class="wsp-btn__tooltip" data-i18n="wsp.tooltip">Escribinos</span>
+  </a>
+
+  <script src="agencia.js"></script>
+</body>
+</html>
