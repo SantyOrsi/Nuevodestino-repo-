@@ -35,9 +35,6 @@ const FIREBASE_CONFIG = {
 /* ============================================================
    CONSTANTS
 ============================================================ */
-const ADMIN_USER  = 'admin';
-const ADMIN_PASS  = 'nuevodestino2026';  // ← cambiá esto
-const SESSION_KEY = 'nd_admin_session';
 const WSP_NUMBER  = '5493413341317';
 const COLLECTION  = 'packages';
 
@@ -380,18 +377,28 @@ class ModalController {
 
 /* ============================================================
    CLASS: AdminAuth
+   Responsabilidad: autenticación real con Firebase Auth.
 ============================================================ */
 class AdminAuth {
-  constructor(sessionKey) { this._sessionKey = sessionKey; }
-  isLoggedIn() { return sessionStorage.getItem(this._sessionKey) === 'true'; }
-  login(user, pass) {
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
-      sessionStorage.setItem(this._sessionKey, 'true');
-      return true;
-    }
-    return false;
+  constructor() {
+    this._auth = firebase.auth();
   }
-  logout() { sessionStorage.removeItem(this._sessionKey); }
+
+  currentUser() {
+    return this._auth.currentUser;
+  }
+
+  onAuthStateChanged(cb) {
+    return this._auth.onAuthStateChanged(cb);
+  }
+
+  async login(email, pass) {
+    await this._auth.signInWithEmailAndPassword(email, pass);
+  }
+
+  async logout() {
+    await this._auth.signOut();
+  }
 }
 
 
@@ -904,8 +911,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filterTabs = document.querySelectorAll('.filter-bar__tab');
   const filter     = new FilterController(filterTabs, gridEl);
 
-  /* 5 · Auth */
-  const auth = new AdminAuth(SESSION_KEY);
+  /* 5 · Auth Firebase */
+  const auth = new AdminAuth();
 
   /* 6 · Drawer */
   const drawer = new AdminDrawer();
@@ -946,30 +953,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { loginModal.hidden = true; }, 310);
   }
 
+  // Escuchar cambios de sesión Firebase
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      // Usuario logueado: mostrar botón Admin activo
+      adminBtn.textContent = 'Admin ✓';
+    } else {
+      adminBtn.textContent = 'Admin';
+      drawer.close();
+    }
+  });
+
   adminBtn.addEventListener('click', () => {
-    auth.isLoggedIn() ? drawer.open() : openLoginModal();
+    auth.currentUser() ? drawer.open() : openLoginModal();
   });
   loginClose.addEventListener('click', closeLoginModal);
   loginModal.addEventListener('click', e => { if (e.target === loginModal) closeLoginModal(); });
 
-  loginForm.addEventListener('submit', e => {
+  loginForm.addEventListener('submit', async e => {
     e.preventDefault();
-    const user = document.getElementById('l-user').value.trim();
-    const pass = document.getElementById('l-pass').value;
-    if (auth.login(user, pass)) {
+    const email = document.getElementById('l-user').value.trim();
+    const pass  = document.getElementById('l-pass').value;
+    const btn   = loginForm.querySelector('.btn--primary');
+    const span  = btn.querySelector('span');
+    span.textContent = 'Ingresando…';
+    btn.disabled = true;
+    try {
+      await auth.login(email, pass);
       loginError.hidden = true;
       closeLoginModal();
       setTimeout(() => drawer.open(), 350);
       loginForm.reset();
-    } else {
+    } catch (err) {
       loginError.hidden = false;
+      loginError.textContent = 'Email o contraseña incorrectos.';
       document.getElementById('l-pass').value = '';
       document.getElementById('l-pass').focus();
+    } finally {
+      span.textContent = 'Ingresar →';
+      btn.disabled = false;
     }
   });
 
-  logoutBtn.addEventListener('click', () => {
-    auth.logout();
+  logoutBtn.addEventListener('click', async () => {
+    await auth.logout();
     drawer.close();
     pkgForm.reset();
   });
@@ -990,4 +1017,3 @@ document.addEventListener('DOMContentLoaded', async () => {
   new LanguageToggle('js-lang-toggle', 'js-lang-flag', 'js-lang-label');
 
 });
-
