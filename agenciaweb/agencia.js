@@ -235,7 +235,7 @@ class PackageRenderer {
       <div class="package-card__thumb">
         ${pkg.image ? `<img class="package-card__thumb-img" src="${pkg.image}" alt="${pkg.title}" loading="lazy" />` : ''}
         <div class="package-card__thumb-overlay"></div>
-        <span class="package-card__emoji" aria-hidden="true">${pkg.emoji}</span>
+        <span class="package-card__emoji" aria-hidden="true">${pkg.emoji || ''}</span>
         <span class="package-card__badge ${isIntl ? 'package-card__badge--intl' : ''}">
           ${pkg.catLabel || pkg.cat}
         </span>
@@ -458,6 +458,20 @@ class PackageForm {
     this._buildEmojiPicker();
     this._addIncludeRow('');
     this._bindEvents();
+     _highlightEmoji(selected) {
+  const buttons = document.querySelectorAll('.emoji-picker__option');
+
+  buttons.forEach(btn => {
+    btn.classList.remove('emoji-picker__option--active');
+
+    if (
+      (selected === '∅' && btn.textContent === '∅') ||
+      btn.textContent === selected
+    ) {
+      btn.classList.add('emoji-picker__option--active');
+    }
+  });
+}
   }
 
   renderList() {
@@ -470,7 +484,7 @@ class PackageForm {
       li.dataset.id = pkg.id;
       li.innerHTML = `
         <div class="admin-pkg-item__thumb">
-          ${pkg.image ? `<img src="${pkg.image}" alt="${pkg.title}">` : `<span>${pkg.emoji}</span>`}
+          ${pkg.image ? `<img src="${pkg.image}" alt="${pkg.title}">` : `<span>${pkg.emoji || ''}</span>`}
         </div>
         <div class="admin-pkg-item__info">
           <p class="admin-pkg-item__name">${pkg.title}</p>
