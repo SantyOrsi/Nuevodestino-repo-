@@ -633,30 +633,24 @@ class PackageForm {
       .map(i => i.value.trim()).filter(Boolean);
   }
 
-  _buildEmojiPicker() {
+_buildEmojiPicker() {
     const picker = document.getElementById('js-emoji-picker');
     picker.innerHTML = '';
+
+    // Opción "sin emoji"
+    const noBtn = document.createElement('button');
+    noBtn.type = 'button';
+    noBtn.className = 'emoji-picker__option';
+    noBtn.textContent = '∅';
+    noBtn.title = 'Sin ícono';
+    noBtn.setAttribute('aria-label', 'Sin ícono');
+    noBtn.addEventListener('click', () => {
+      document.getElementById('pf-emoji').value = '';
+      this._highlightEmoji('∅');
+    });
+    picker.appendChild(noBtn);
+
     EMOJIS.forEach(emoji => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'emoji-picker__option';
-      btn.textContent = emoji;
-      btn.setAttribute('aria-label', emoji);
-      btn.addEventListener('click', () => {
-        document.getElementById('pf-emoji').value = emoji;
-        this._highlightEmoji(emoji);
-      });
-      picker.appendChild(btn);
-    });
-    this._highlightEmoji(EMOJIS[0]);
-  }
-
-  _highlightEmoji(emoji) {
-    document.querySelectorAll('.emoji-picker__option').forEach(btn => {
-      btn.classList.toggle('emoji-picker__option--selected', btn.textContent === emoji);
-    });
-  }
-
   _readImageFile(file) {
     const reader = new FileReader();
     reader.onload = ev => {
