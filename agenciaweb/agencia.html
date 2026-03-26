@@ -559,14 +559,8 @@
     },
   ];
 
-  /* ── LOAD PACKAGES ── */
-  function loadPackages() {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      const adminPkgs = stored ? JSON.parse(stored) : [];
-      return adminPkgs.length > 0 ? adminPkgs : SAMPLE_PACKAGES;
-    } catch { return SAMPLE_PACKAGES; }
-  }
+ 
+  
 
   /* ── BADGE CONFIG ── */
   const BADGE_MAP = {
