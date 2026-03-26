@@ -1,151 +1,840 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agencia</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agencia de Viajes · Grupo Nuevo Destino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: Arial; margin:0; }
-    header { display:flex; justify-content:flex-end; gap:10px; padding:10px; background:#111; color:#fff; }
-    button { cursor:pointer; }
+    :root {
+      --color-yellow:#F5C800; --color-black:#0f0f0f; --color-grey:#6b6b6b;
+      --color-grey-light:#e8e8e8; --color-bg:#f7f7f5; --color-white:#ffffff;
+      --color-border:#e2e2e2; --color-green:#25D366; --color-red:#e53e3e;
+      --font-display:'DM Serif Display',serif; --font-body:'DM Sans',sans-serif;
+      --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px; --radius-pill:100px;
+      --shadow-card:0 10px 28px rgba(0,0,0,0.07);
+      --transition:0.25s ease; --transition-smooth:0.38s cubic-bezier(0.22,1,0.36,1);
+      --drawer-w:480px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-body);background:var(--color-white);color:var(--color-black);overflow-x:hidden}
+
+    /* NAV */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:24px 64px;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-bottom:1px solid transparent;transition:border-color var(--transition),padding .4s ease}
+    .nav--scrolled{border-color:var(--color-border);padding:16px 64px}
+    .nav__logo{text-decoration:none;display:flex;align-items:center}
+    .nav__logo-img{height:56px;width:auto;object-fit:contain}
+    .nav__links{display:flex;gap:36px;list-style:none}
+    .nav__links a{text-decoration:none;color:var(--color-grey);font-size:13px;font-weight:500;position:relative;transition:color var(--transition)}
+    .nav__links a::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:1.5px;background:var(--color-yellow);transition:width var(--transition)}
+    .nav__links a:hover{color:var(--color-yellow)} .nav__links a:hover::after{width:100%}
+    .nav__links a.active{color:var(--color-black)} .nav__links a.active::after{width:100%}
+    .nav__right{display:flex;align-items:center;gap:18px}
+    .nav__cta{font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;color:var(--color-black);border-bottom:2px solid var(--color-yellow);padding-bottom:2px;transition:letter-spacing var(--transition),color var(--transition)}
+    .nav__cta:hover{letter-spacing:2.5px;color:var(--color-yellow)}
+    .lang-toggle{display:flex;align-items:center;gap:6px;background:var(--color-bg);border:1.5px solid var(--color-border);border-radius:var(--radius-pill);padding:6px 14px 6px 10px;cursor:pointer;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--color-black);letter-spacing:.5px;white-space:nowrap;transition:background var(--transition),border-color var(--transition),transform var(--transition)}
+    .lang-toggle:hover{background:var(--color-yellow);border-color:var(--color-yellow);transform:scale(1.04)}
+    .lang-toggle__flag{font-size:15px;line-height:1}
+
+    /* PAGE HEADER */
+    .page-header{padding:160px 64px 80px;background:var(--color-bg);border-bottom:1px solid var(--color-border);position:relative;overflow:hidden}
+    .page-header__bg-num{position:absolute;right:60px;bottom:-40px;font-family:var(--font-display);font-size:260px;line-height:1;color:var(--color-black);opacity:.04;pointer-events:none;user-select:none}
+    .page-header__tag{font-size:10px;font-weight:600;letter-spacing:4px;text-transform:uppercase;color:var(--color-grey);margin-bottom:20px;display:flex;align-items:center;gap:12px}
+    .page-header__tag::before{content:'';display:inline-block;width:32px;height:1.5px;background:var(--color-yellow)}
+    .page-header__title{font-family:var(--font-display);font-size:clamp(44px,6vw,88px);line-height:1.02;max-width:700px}
+    .page-header__title em{font-style:italic;color:var(--color-yellow)}
+    .page-header__sub{font-size:16px;color:var(--color-grey);line-height:1.75;max-width:500px;margin-top:20px}
+
+    /* MARQUEE */
+    .marquee{border-top:1px solid var(--color-black);border-bottom:1px solid var(--color-black);overflow:hidden;padding:16px 0;background:var(--color-black)}
+    .marquee__track{display:flex;white-space:nowrap;animation:marquee-scroll 22s linear infinite}
+    .marquee__item{display:flex;align-items:center;gap:20px;padding:0 28px;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45);flex-shrink:0}
+    .marquee__dot{width:5px;height:5px;border-radius:50%;background:var(--color-yellow)}
+    @keyframes marquee-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+    /* FILTER BAR */
+    .filter-bar{padding:24px 64px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--color-border);background:var(--color-white);position:sticky;top:88px;z-index:100}
+    .filter-bar__label{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--color-grey);margin-right:6px}
+    .filter-btn{font-family:var(--font-body);font-size:12px;font-weight:600;padding:8px 18px;border-radius:var(--radius-pill);border:1.5px solid var(--color-border);background:transparent;color:var(--color-grey);cursor:pointer;letter-spacing:.5px;transition:all var(--transition)}
+    .filter-btn:hover{border-color:var(--color-black);color:var(--color-black)}
+    .filter-btn.active{background:var(--color-black);color:var(--color-white);border-color:var(--color-black)}
+    .filter-btn.active:hover{background:var(--color-yellow);color:var(--color-black);border-color:var(--color-yellow)}
+    .filter-bar__search{margin-left:auto;position:relative}
+    .filter-bar__search input{font-family:var(--font-body);font-size:13px;color:var(--color-black);background:var(--color-bg);border:1.5px solid var(--color-border);border-radius:var(--radius-pill);padding:8px 16px 8px 36px;outline:none;width:210px;transition:border-color var(--transition),width var(--transition-smooth)}
+    .filter-bar__search input:focus{border-color:var(--color-black);width:250px}
+    .filter-bar__search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-grey)}
+
+    /* PACKAGES */
+    .packages-section{padding:64px}
+    .packages-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+    .packages-count{font-size:12px;color:var(--color-grey);font-weight:500}
+    .packages-count strong{color:var(--color-black)}
+    .packages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:24px}
+
+    /* CARD */
+    .pkg-card{background:var(--color-white);border:1px solid var(--color-border);border-radius:var(--radius-xl);overflow:hidden;display:flex;flex-direction:column;transition:transform var(--transition-smooth),box-shadow var(--transition-smooth)}
+    .pkg-card:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(0,0,0,.10)}
+    .pkg-card__img-wrap{position:relative;height:210px;overflow:hidden;background:var(--color-grey-light)}
+    .pkg-card__img{width:100%;height:100%;object-fit:cover;transition:transform .55s cubic-bezier(.22,1,.36,1)}
+    .pkg-card:hover .pkg-card__img{transform:scale(1.06)}
+    .pkg-card__badge{position:absolute;top:14px;left:14px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 12px;border-radius:var(--radius-pill)}
+    .pkg-card__badge--nacional{background:var(--color-yellow);color:var(--color-black)}
+    .pkg-card__badge--internacional{background:var(--color-black);color:var(--color-white)}
+    .pkg-card__badge--egresados{background:#FF6B35;color:#fff}
+    .pkg-card__badge--grupal{background:#4A90E2;color:#fff}
+    .pkg-card__featured{position:absolute;top:14px;right:14px;background:var(--color-yellow);color:var(--color-black);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:5px 10px;border-radius:var(--radius-pill)}
+    .pkg-card__body{padding:22px 22px 14px;flex:1;display:flex;flex-direction:column;gap:8px}
+    .pkg-card__dest{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--color-grey)}
+    .pkg-card__title{font-family:var(--font-display);font-size:21px;line-height:1.15}
+    .pkg-card__desc{font-size:13px;color:var(--color-grey);line-height:1.7;flex:1}
+    .pkg-card__meta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--color-border);margin-top:auto}
+    .pkg-card__meta-item{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--color-grey);font-weight:500}
+    .pkg-card__price{margin-left:auto;font-family:var(--font-display);font-size:21px}
+    .pkg-card__price span{font-size:11px;font-family:var(--font-body);color:var(--color-grey);font-weight:500}
+    .pkg-card__footer{padding:0 22px 22px}
+    .pkg-card__cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border-radius:var(--radius-sm);background:var(--color-black);color:var(--color-white);font-family:var(--font-body);font-size:13px;font-weight:600;border:none;cursor:pointer;position:relative;overflow:hidden;transition:all var(--transition-smooth)}
+    .pkg-card__cta::before{content:'';position:absolute;inset:0;background:var(--color-yellow);transform:scaleX(0);transform-origin:left;transition:transform var(--transition-smooth)}
+    .pkg-card__cta span{position:relative;z-index:1;transition:color var(--transition-smooth)}
+    .pkg-card__cta:hover::before{transform:scaleX(1)} .pkg-card__cta:hover span{color:var(--color-black)}
+    .packages-empty{grid-column:1/-1;text-align:center;padding:80px 0}
+    .packages-empty__icon{font-size:48px;margin-bottom:14px}
+    .packages-empty__text{font-size:15px;color:var(--color-grey)}
+
+    /* DETAIL MODAL */
+    .modal-overlay{position:fixed;inset:0;z-index:400;background:rgba(15,15,15,.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+    .modal-overlay.open{opacity:1;pointer-events:all}
+    .modal-wrap{position:relative;width:100%;max-width:660px}
+    .modal{background:var(--color-white);border-radius:var(--radius-xl);max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform var(--transition-smooth)}
+    .modal-overlay.open .modal{transform:none}
+    .modal__img{width:100%;height:260px;object-fit:cover;border-radius:var(--radius-xl) var(--radius-xl) 0 0;background:var(--color-grey-light)}
+    .modal__body{padding:32px}
+    .modal__tag{font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--color-grey);margin-bottom:8px}
+    .modal__title{font-family:var(--font-display);font-size:clamp(26px,3.5vw,36px);line-height:1.1;margin-bottom:14px}
+    .modal__desc{font-size:14px;color:var(--color-grey);line-height:1.8;margin-bottom:20px}
+    .modal__chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+    .modal__chip{font-size:11px;font-weight:600;padding:5px 14px;border-radius:var(--radius-pill);background:var(--color-bg);border:1px solid var(--color-border)}
+    .modal__meta{display:flex;gap:24px;flex-wrap:wrap;padding:18px 0;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);margin-bottom:24px}
+    .modal__meta-item{display:flex;flex-direction:column;gap:3px}
+    .modal__meta-label{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--color-grey)}
+    .modal__meta-val{font-size:15px;font-weight:600}
+    .modal__price-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .modal__price{font-family:var(--font-display);font-size:36px}
+    .modal__price-note{font-size:11px;color:var(--color-grey)}
+    .modal__actions{display:flex;gap:10px;flex:1;min-width:200px}
+    .modal__btn{flex:1;padding:13px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;text-align:center;border:none;transition:all var(--transition-smooth);display:flex;align-items:center;justify-content:center;gap:7px}
+    .modal__btn--wa{background:#25D366;color:#fff} .modal__btn--wa:hover{background:#1fb855}
+    .modal__btn--consult{background:var(--color-black);color:#fff} .modal__btn--consult:hover{background:var(--color-yellow);color:var(--color-black)}
+    .modal__close{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:var(--color-white);border:1px solid var(--color-border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all var(--transition);z-index:10}
+    .modal__close:hover{background:var(--color-black);color:#fff}
+
+    /* ADMIN TRIGGER */
+    .admin-trigger{position:fixed;bottom:100px;right:32px;z-index:300;width:44px;height:44px;border-radius:50%;background:var(--color-black);color:var(--color-white);border:2px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.2);transition:all var(--transition-smooth);opacity:.3}
+    .admin-trigger:hover{opacity:1;background:var(--color-yellow);color:var(--color-black);transform:scale(1.1);border-color:var(--color-yellow);box-shadow:0 6px 24px rgba(245,200,0,.35)}
+    .admin-trigger.drawer-open{opacity:1;background:var(--color-yellow);color:var(--color-black);border-color:var(--color-yellow)}
+    .admin-trigger__tooltip{position:absolute;right:52px;top:50%;transform:translateY(-50%);background:var(--color-black);color:var(--color-white);padding:6px 12px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:11px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--transition)}
+    .admin-trigger:hover .admin-trigger__tooltip{opacity:1}
+
+    /* ADMIN DRAWER */
+    .admin-backdrop{position:fixed;inset:0;z-index:490;background:rgba(15,15,15,.35);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .35s ease}
+    .admin-backdrop.open{opacity:1;pointer-events:all}
+    .admin-drawer{position:fixed;top:0;right:0;bottom:0;z-index:500;width:var(--drawer-w);max-width:96vw;background:var(--color-white);box-shadow:-12px 0 48px rgba(0,0,0,.14);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .42s cubic-bezier(.22,1,.36,1);overflow:hidden}
+    .admin-drawer.open{transform:translateX(0)}
+
+    .drawer__header{padding:20px 24px;background:var(--color-black);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+    .drawer__header-left{display:flex;align-items:center;gap:12px}
+    .drawer__icon{width:32px;height:32px;border-radius:var(--radius-sm);background:var(--color-yellow);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .drawer__title{font-family:var(--font-display);font-size:17px;color:var(--color-white)}
+    .drawer__sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
+    .drawer__close{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all var(--transition)}
+    .drawer__close:hover{background:var(--color-yellow);color:var(--color-black)}
+
+    .drawer__tabs{display:flex;border-bottom:1px solid var(--color-border);background:var(--color-bg);flex-shrink:0}
+    .drawer__tab{flex:1;padding:12px 8px;font-family:var(--font-body);font-size:12px;font-weight:600;color:var(--color-grey);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--transition)}
+    .drawer__tab:hover{color:var(--color-black)}
+    .drawer__tab.active{color:var(--color-black);border-bottom-color:var(--color-yellow)}
+
+    .drawer__body{flex:1;overflow-y:auto;padding:24px}
+    .drawer-page{display:none}
+    .drawer-page.active{display:block}
+
+    /* Login */
+    .dw-login__title{font-family:var(--font-display);font-size:22px;margin-bottom:6px}
+    .dw-login__sub{font-size:13px;color:var(--color-grey);margin-bottom:28px;line-height:1.6}
+    .dw-field{margin-bottom:15px}
+    .dw-field label{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-grey);margin-bottom:6px}
+    .dw-field input{width:100%;background:var(--color-bg);border:1.5px solid var(--color-border);border-radius:var(--radius-sm);padding:11px 14px;font-family:var(--font-body);font-size:14px;color:var(--color-black);outline:none;transition:border-color var(--transition),background var(--transition)}
+    .dw-field input:focus{border-color:var(--color-black);background:var(--color-white)}
+    .dw-error{font-size:12px;color:var(--color-red);min-height:18px;margin-bottom:10px}
+    .dw-btn{width:100%;padding:13px;border-radius:var(--radius-sm);background:var(--color-black);color:var(--color-white);font-family:var(--font-body);font-size:13px;font-weight:600;border:none;cursor:pointer;position:relative;overflow:hidden;transition:all var(--transition-smooth)}
+    .dw-btn::before{content:'';position:absolute;inset:0;background:var(--color-yellow);transform:scaleX(0);transform-origin:left;transition:transform var(--transition-smooth)}
+    .dw-btn span{position:relative;z-index:1;transition:color var(--transition-smooth)}
+    .dw-btn:hover::before{transform:scaleX(1)} .dw-btn:hover span{color:var(--color-black)}
+
+    /* Stats */
+    .dw-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
+    .dw-stat{background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:14px 16px}
+    .dw-stat__label{font-size:9px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--color-grey);margin-bottom:6px}
+    .dw-stat__val{font-family:var(--font-display);font-size:28px;line-height:1}
+    .dw-stat__val--yellow{color:var(--color-yellow)}
+
+    /* Section title */
+    .dw-section-title{font-size:10px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;color:var(--color-grey);margin-bottom:14px;display:flex;align-items:center;gap:10px}
+    .dw-section-title::after{content:'';flex:1;height:1px;background:var(--color-border)}
+
+    /* Pkg list */
+    .dw-pkg-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+    .dw-pkg-row{background:var(--color-bg);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:11px 12px;display:flex;align-items:center;gap:10px;transition:border-color var(--transition)}
+    .dw-pkg-row:hover{border-color:var(--color-grey-light)}
+    .dw-pkg-row__img{width:44px;height:32px;border-radius:var(--radius-sm);object-fit:cover;background:var(--color-grey-light);flex-shrink:0}
+    .dw-pkg-row__info{flex:1;min-width:0}
+    .dw-pkg-row__title{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .dw-pkg-row__dest{font-size:11px;color:var(--color-grey)}
+    .dw-pkg-row__badge{font-size:8px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:var(--radius-pill);flex-shrink:0}
+    .dw-pkg-row__badge--nacional{background:var(--color-yellow);color:var(--color-black)}
+    .dw-pkg-row__badge--internacional{background:var(--color-black);color:#fff}
+    .dw-pkg-row__badge--egresados{background:#FF6B35;color:#fff}
+    .dw-pkg-row__badge--grupal{background:#4A90E2;color:#fff}
+    .dw-pkg-row__actions{display:flex;gap:5px;flex-shrink:0}
+    .dw-icon-btn{width:28px;height:28px;border-radius:var(--radius-sm);border:1.5px solid var(--color-border);background:var(--color-white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all var(--transition)}
+    .dw-icon-btn:hover{background:var(--color-black);border-color:var(--color-black)}
+    .dw-icon-btn--del:hover{background:var(--color-red);border-color:var(--color-red)}
+    .dw-empty{text-align:center;padding:36px 0;color:var(--color-grey)}
+    .dw-empty__icon{font-size:30px;margin-bottom:8px}
+    .dw-empty__text{font-size:13px}
+
+    /* Form */
+    .dw-form-title{font-family:var(--font-display);font-size:20px;margin-bottom:4px}
+    .dw-form-sub{font-size:12px;color:var(--color-grey);margin-bottom:20px}
+    .dw-form-field{margin-bottom:13px}
+    .dw-form-field label{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--color-grey);margin-bottom:5px}
+    .dw-form-field input,.dw-form-field select,.dw-form-field textarea{width:100%;background:var(--color-bg);border:1.5px solid var(--color-border);border-radius:var(--radius-sm);padding:10px 13px;font-family:var(--font-body);font-size:13px;color:var(--color-black);outline:none;appearance:none;transition:border-color var(--transition),background var(--transition)}
+    .dw-form-field input:focus,.dw-form-field select:focus,.dw-form-field textarea:focus{border-color:var(--color-black);background:var(--color-white)}
+    .dw-form-field textarea{min-height:80px;resize:vertical}
+    .dw-form-field__hint{font-size:11px;color:var(--color-grey);margin-top:4px}
+    .dw-form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .dw-form-check{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+    .dw-form-check input{width:15px;height:15px;accent-color:var(--color-yellow);cursor:pointer}
+    .dw-form-check label{font-size:13px;font-weight:500;cursor:pointer}
+    .dw-img-preview{width:100%;height:110px;object-fit:cover;border-radius:var(--radius-sm);border:1px solid var(--color-border);margin-top:7px;display:none}
+    .dw-img-preview.show{display:block}
+    .dw-form-actions{display:flex;gap:10px;margin-top:18px}
+    .dw-form-cancel{background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--color-grey);cursor:pointer;text-decoration:underline;transition:color var(--transition);padding:0 4px}
+    .dw-form-cancel:hover{color:var(--color-black)}
+
+    /* Logout row */
+    .dw-logout-row{margin-top:24px;padding-top:16px;border-top:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center}
+    .dw-logout-btn{background:none;border:none;font-family:var(--font-body);font-size:12px;color:var(--color-grey);cursor:pointer;display:flex;align-items:center;gap:7px;transition:color var(--transition)}
+    .dw-logout-btn:hover{color:var(--color-red)}
+    .dw-user-tag{font-size:11px;color:var(--color-grey)}
+
+    /* Toast */
+    .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--color-black);color:#fff;padding:12px 22px;border-radius:var(--radius-pill);font-size:13px;font-weight:500;z-index:999;opacity:0;pointer-events:none;transition:opacity .3s ease,transform .3s ease;white-space:nowrap}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    .toast--ok{background:var(--color-green)} .toast--err{background:var(--color-red)}
+
+    /* Confirm */
+    .confirm-overlay{position:fixed;inset:0;z-index:600;background:rgba(15,15,15,.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:24px;opacity:0;pointer-events:none;transition:opacity var(--transition-smooth)}
+    .confirm-overlay.open{opacity:1;pointer-events:all}
+    .confirm-box{background:var(--color-white);border-radius:var(--radius-xl);padding:36px 32px;max-width:340px;width:100%;text-align:center;transform:scale(.96);transition:transform var(--transition-smooth)}
+    .confirm-overlay.open .confirm-box{transform:none}
+    .confirm-box__icon{font-size:32px;margin-bottom:12px}
+    .confirm-box__title{font-family:var(--font-display);font-size:20px;margin-bottom:8px}
+    .confirm-box__sub{font-size:13px;color:var(--color-grey);line-height:1.6;margin-bottom:24px}
+    .confirm-box__actions{display:flex;gap:10px;justify-content:center}
+    .confirm-btn-del{padding:10px 20px;border-radius:var(--radius-sm);background:var(--color-red);color:#fff;border:none;font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:opacity var(--transition)}
+    .confirm-btn-del:hover{opacity:.85}
+    .confirm-btn-cancel{padding:10px 20px;border-radius:var(--radius-sm);background:transparent;color:var(--color-black);border:1.5px solid var(--color-border);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:all var(--transition)}
+    .confirm-btn-cancel:hover{border-color:var(--color-black)}
+
+    /* WSP + Footer */
+    .wsp-btn{position:fixed;bottom:32px;right:32px;z-index:200;width:52px;height:52px;border-radius:50%;background:var(--color-green);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.3);text-decoration:none;transition:transform var(--transition)}
+    .wsp-btn:hover{transform:scale(1.1) rotate(-5deg)}
+    .wsp-btn__tooltip{position:absolute;right:62px;top:50%;transform:translateY(-50%);background:var(--color-black);color:#fff;padding:6px 12px;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:12px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--transition)}
+    .wsp-btn:hover .wsp-btn__tooltip{opacity:1}
+    .footer{padding:44px 64px;border-top:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:center}
+    .footer__brand{font-family:var(--font-display);font-size:17px}
+    .footer__nav{display:flex;gap:24px}
+    .footer__nav a{font-size:12px;color:var(--color-grey);text-decoration:none;transition:color var(--transition)}
+    .footer__nav a:hover{color:var(--color-yellow)}
+    .footer__copy{font-size:12px;color:var(--color-grey)}
+
+    /* Scroll reveal */
+    [data-reveal]{opacity:0;transition:opacity .75s ease,transform .75s ease}
+    [data-reveal="up"]{transform:translateY(28px)}
+    [data-reveal].is-visible{opacity:1;transform:none}
+
+    /* Responsive */
+    @media(max-width:900px){
+      .nav{padding:18px 24px} .nav--scrolled{padding:14px 24px} .nav__links{display:none}
+      .page-header{padding:120px 24px 60px}
+      .filter-bar{padding:18px 24px;top:78px}
+      .packages-section{padding:48px 24px}
+      .packages-grid{grid-template-columns:1fr}
+      .footer{flex-direction:column;gap:14px;text-align:center;padding:28px 24px}
+      .admin-drawer{width:100%;max-width:100%}
+      .dw-form-row{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header>
-    <button id="translateBtn">Traducir</button>
-    <button id="adminBtn">Admin</button>
-  </header>
+<!-- NAV -->
+<nav class="nav" id="js-nav">
+  <a href="index.html" class="nav__logo">
+    <img src="https://i.ibb.co/67HdS4qF/image-removebg-preview.png" alt="Grupo Nuevo Destino" class="nav__logo-img"/>
+  </a>
+  <ul class="nav__links" role="list">
+    <li><a href="index.html#nosotros" data-i18n="nav.nosotros">Nosotros</a></li>
+    <li><a href="traslados.html" data-i18n="nav.traslados">Traslados</a></li>
+    <li><a href="agencia.html" class="active" data-i18n="nav.agencia">Agencia</a></li>
+    <li><a href="index.html#contacto" data-i18n="nav.contacto">Contacto</a></li>
+  </ul>
+  <div class="nav__right">
+    <a href="index.html#contacto" class="nav__cta" data-i18n="nav.cta">Consultar</a>
+    <button class="lang-toggle" id="js-lang-toggle" aria-label="Cambiar idioma">
+      <span class="lang-toggle__flag" id="js-lang-flag">&#127468;&#127463;</span>
+      <span class="lang-toggle__label" id="js-lang-label">EN</span>
+    </button>
+  </div>
+</nav>
 
-  <h1 style="padding:10px;">Paquetes</h1>
-  <div id="packages-container"></div>
+<!-- PAGE HEADER -->
+<header class="page-header">
+  <p class="page-header__tag" data-i18n="agency.tag">Nuevo Destino Viajes</p>
+  <h1 class="page-header__title">
+    <span data-i18n="agency.title1">Paquetes de</span><em data-i18n="agency.title2"> viaje</em>
+  </h1>
+  <p class="page-header__sub" data-i18n="agency.sub">
+    Agencia habilitada. Nacionales, internacionales, egresados y grupales. Cada paquete disenado para que solo te preocupes por disfrutar.
+  </p>
+  <span class="page-header__bg-num" aria-hidden="true">02</span>
+</header>
 
-  <!-- LOGIN -->
-  <div id="adminLogin" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#0008;">
-    <div style="background:#fff; padding:20px; width:300px; margin:100px auto;">
-      <h3>Login Admin</h3>
-      <input id="user" placeholder="Usuario"><br><br>
-      <input id="pass" type="password" placeholder="Contraseña"><br><br>
-      <button onclick="login()">Entrar</button>
+<!-- MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <div class="marquee__item"><span class="marquee__dot"></span>Turismo Nacional</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Turismo Internacional</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Eventos &amp; Sociales</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Egresados</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Viajes Grupales</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Agencia Habilitada</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Turismo Nacional</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Turismo Internacional</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Eventos &amp; Sociales</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Egresados</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Viajes Grupales</div>
+    <div class="marquee__item"><span class="marquee__dot"></span>Agencia Habilitada</div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-bar__label" data-i18n="filter.label">Filtrar</span>
+  <button class="filter-btn active" data-filter="all"           data-i18n="filter.all">Todos</button>
+  <button class="filter-btn"        data-filter="nacional"      data-i18n="filter.nacional">Nacional</button>
+  <button class="filter-btn"        data-filter="internacional" data-i18n="filter.int">Internacional</button>
+  <button class="filter-btn"        data-filter="egresados"     data-i18n="filter.egr">Egresados</button>
+  <button class="filter-btn"        data-filter="grupal"        data-i18n="filter.grup">Grupal</button>
+  <div class="filter-bar__search">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" id="js-search" placeholder="Buscar destino..." data-i18n-ph="filter.ph"/>
+  </div>
+</div>
+
+<!-- PACKAGES -->
+<section class="packages-section">
+  <div class="packages-header">
+    <p class="packages-count" id="js-count-display"></p>
+  </div>
+  <div class="packages-grid" id="js-packages-grid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer__brand">Grupo Nuevo Destino</span>
+  <nav class="footer__nav">
+    <a href="traslados.html" data-i18n="nav.traslados">Traslados</a>
+    <a href="agencia.html"   data-i18n="nav.agencia">Agencia</a>
+    <a href="index.html#contacto" data-i18n="nav.contacto">Contacto</a>
+  </nav>
+  <small class="footer__copy">&copy; 2026 &middot; Rosario, Argentina</small>
+</footer>
+
+<!-- WHATSAPP -->
+<a class="wsp-btn" href="https://wa.me/5493413341317?text=Hola!%20Quiero%20consultar." target="_blank" rel="noopener" aria-label="WhatsApp">
+  <span class="wsp-btn__tooltip" data-i18n="wsp.tooltip">Escribinos</span>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- ADMIN TRIGGER -->
+<button class="admin-trigger" id="js-admin-trigger" title="Panel Admin">
+  <span class="admin-trigger__tooltip">Panel Admin</span>
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>
+  </svg>
+</button>
+
+<!-- BACKDROP -->
+<div class="admin-backdrop" id="js-admin-backdrop"></div>
+
+<!-- ADMIN DRAWER -->
+<aside class="admin-drawer" id="js-admin-drawer" aria-label="Panel de administracion">
+  <div class="drawer__header">
+    <div class="drawer__header-left">
+      <div class="drawer__icon">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2.5"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+      </div>
+      <div>
+        <p class="drawer__title">Panel Admin</p>
+        <p class="drawer__sub">Nuevo Destino Viajes</p>
+      </div>
+    </div>
+    <button class="drawer__close" id="js-drawer-close" aria-label="Cerrar">x</button>
+  </div>
+
+  <div class="drawer__tabs" id="js-drawer-tabs" style="display:none">
+    <button class="drawer__tab active" data-tab="list">Paquetes</button>
+    <button class="drawer__tab" data-tab="form">+ Nuevo</button>
+    <button class="drawer__tab" data-tab="stats">Stats</button>
+  </div>
+
+  <div class="drawer__body">
+
+    <!-- LOGIN -->
+    <div class="drawer-page active" id="dw-page-login">
+      <p class="dw-login__title">Acceso admin</p>
+      <p class="dw-login__sub">Ingresa tus credenciales para gestionar los paquetes.</p>
+      <div class="dw-field"><label for="dw-user">Usuario</label><input type="text" id="dw-user" placeholder="admin" autocomplete="username"/></div>
+      <div class="dw-field"><label for="dw-pass">Contrasena</label><input type="password" id="dw-pass" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password"/></div>
+      <p class="dw-error" id="dw-error"></p>
+      <button class="dw-btn" id="dw-login-btn"><span>Ingresar &rarr;</span></button>
+    </div>
+
+    <!-- LIST -->
+    <div class="drawer-page" id="dw-page-list">
+      <p class="dw-section-title">Paquetes cargados</p>
+      <div class="dw-pkg-list" id="dw-pkg-list"></div>
+      <button class="dw-btn" id="dw-go-add-btn"><span>+ Agregar nuevo paquete</span></button>
+      <div class="dw-logout-row">
+        <span class="dw-user-tag">&bull; admin</span>
+        <button class="dw-logout-btn" id="dw-logout-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesion
+        </button>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <div class="drawer-page" id="dw-page-form">
+      <p class="dw-form-title" id="dw-form-title">Nuevo paquete</p>
+      <p class="dw-form-sub"   id="dw-form-sub">Completa los datos y guarda.</p>
+      <form id="dw-pkg-form" novalidate>
+        <input type="hidden" id="dw-f-id"/>
+        <div class="dw-form-field"><label for="dw-f-title">Nombre *</label><input type="text" id="dw-f-title" placeholder="Ej: Bariloche Nevado" required/></div>
+        <div class="dw-form-field"><label for="dw-f-dest">Destino *</label><input type="text" id="dw-f-dest" placeholder="Ej: Bariloche, Rio Negro" required/></div>
+        <div class="dw-form-row">
+          <div class="dw-form-field"><label for="dw-f-cat">Categoria *</label>
+            <select id="dw-f-cat" required><option value="">Elegi...</option><option value="nacional">Nacional</option><option value="internacional">Internacional</option><option value="egresados">Egresados</option><option value="grupal">Grupal</option></select>
+          </div>
+          <div class="dw-form-field"><label for="dw-f-duration">Duracion</label><input type="text" id="dw-f-duration" placeholder="Ej: 7 dias"/></div>
+        </div>
+        <div class="dw-form-row">
+          <div class="dw-form-field"><label for="dw-f-price">Precio</label><input type="text" id="dw-f-price" placeholder="Ej: USD 1.850"/></div>
+          <div class="dw-form-field"><label for="dw-f-price-note">Nota precio</label><input type="text" id="dw-f-price-note" placeholder="por persona"/></div>
+        </div>
+        <div class="dw-form-field"><label for="dw-f-people">Para quien</label><input type="text" id="dw-f-people" placeholder="Ej: Desde 2 pax"/></div>
+        <div class="dw-form-field">
+          <label for="dw-f-img">URL imagen</label>
+          <input type="url" id="dw-f-img" placeholder="https://images.unsplash.com/..."/>
+          <img class="dw-img-preview" id="dw-img-preview" alt="Preview"/>
+        </div>
+        <div class="dw-form-field"><label for="dw-f-desc">Descripcion *</label><textarea id="dw-f-desc" placeholder="Describe el paquete..." required></textarea></div>
+        <div class="dw-form-field">
+          <label for="dw-f-includes">Que incluye</label>
+          <input type="text" id="dw-f-includes" placeholder="Vuelos, Hotel 4, Traslados"/>
+          <p class="dw-form-field__hint">Separado por comas.</p>
+        </div>
+        <div class="dw-form-check"><input type="checkbox" id="dw-f-featured"/><label for="dw-f-featured">Marcar como destacado</label></div>
+        <div class="dw-form-actions">
+          <button type="submit" class="dw-btn" style="flex:1"><span id="dw-submit-label">Guardar paquete &rarr;</span></button>
+          <button type="button" class="dw-form-cancel" id="dw-form-cancel">Cancelar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- STATS -->
+    <div class="drawer-page" id="dw-page-stats">
+      <p class="dw-section-title">Resumen</p>
+      <div class="dw-stats">
+        <div class="dw-stat"><p class="dw-stat__label">Total</p><p class="dw-stat__val" id="dw-st-total">0</p></div>
+        <div class="dw-stat"><p class="dw-stat__label">Destacados</p><p class="dw-stat__val dw-stat__val--yellow" id="dw-st-feat">0</p></div>
+        <div class="dw-stat"><p class="dw-stat__label">Nacional</p><p class="dw-stat__val" id="dw-st-nac">0</p></div>
+        <div class="dw-stat"><p class="dw-stat__label">Internacional</p><p class="dw-stat__val" id="dw-st-int">0</p></div>
+        <div class="dw-stat"><p class="dw-stat__label">Egresados</p><p class="dw-stat__val" id="dw-st-egr">0</p></div>
+        <div class="dw-stat"><p class="dw-stat__label">Grupal</p><p class="dw-stat__val" id="dw-st-grup">0</p></div>
+      </div>
+      <div class="dw-logout-row">
+        <span class="dw-user-tag">&bull; admin</span>
+        <button class="dw-logout-btn" id="dw-logout-btn2">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesion
+        </button>
+      </div>
+    </div>
+
+  </div>
+</aside>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="js-modal-overlay" role="dialog" aria-modal="true">
+  <div class="modal-wrap">
+    <button class="modal__close" id="js-modal-close">x</button>
+    <div class="modal">
+      <img class="modal__img" id="modal-img" src="" alt=""/>
+      <div class="modal__body">
+        <p class="modal__tag"    id="modal-tag"></p>
+        <h2 class="modal__title" id="modal-title"></h2>
+        <p class="modal__desc"   id="modal-desc"></p>
+        <div class="modal__chips" id="modal-chips"></div>
+        <div class="modal__meta"  id="modal-meta"></div>
+        <div class="modal__price-row">
+          <div>
+            <p class="modal__price-note" id="modal-price-note"></p>
+            <p class="modal__price"      id="modal-price"></p>
+          </div>
+          <div class="modal__actions">
+            <a class="modal__btn modal__btn--wa" id="modal-wa" href="#" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </a>
+            <a class="modal__btn modal__btn--consult" href="index.html#contacto">Consultar</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- SIDEBAR ADMIN -->
-  <div id="adminPanel" style="position:fixed; right:-320px; top:0; width:300px; height:100%; background:#222; color:#fff; padding:20px; transition:0.3s; overflow:auto;">
-    <h3>Admin Panel</h3>
+<!-- TOAST -->
+<div class="toast" id="js-toast"></div>
 
-    <input id="title" placeholder="Título"><br><br>
-    <input id="price" placeholder="Precio"><br><br>
-    <button onclick="addPackage()">Agregar</button>
-
-    <hr>
-    <h4>Eliminar paquetes</h4>
-    <div id="admin-list"></div>
+<!-- CONFIRM -->
+<div class="confirm-overlay" id="js-confirm">
+  <div class="confirm-box">
+    <div class="confirm-box__icon">&#128465;</div>
+    <h2 class="confirm-box__title">Eliminar paquete?</h2>
+    <p class="confirm-box__sub">Esta accion no se puede deshacer.</p>
+    <div class="confirm-box__actions">
+      <button class="confirm-btn-del"    id="js-confirm-yes">Si, eliminar</button>
+      <button class="confirm-btn-cancel" id="js-confirm-no">Cancelar</button>
+    </div>
   </div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+<script>
+'use strict';
+const SK='nd_packages',CREDS={user:'admin',pass:'nuevodestino2025'};
+const uid=()=>'p_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+const load=()=>{try{return JSON.parse(localStorage.getItem(SK)||'[]')}catch{return[]}};
+const save=p=>localStorage.setItem(SK,JSON.stringify(p));
+function toast(msg,type=''){const t=document.getElementById('js-toast');t.textContent=msg;t.className='toast show'+(type?' toast--'+type:'');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3000)}
+const BL={nacional:'Nacional',internacional:'Internacional',egresados:'Egresados',grupal:'Grupal'};
+const BLE={nacional:'Domestic',internacional:'International',egresados:'School Trip',grupal:'Group'};
+const FALLBACK_IMG='https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80';
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA-rqJU8LIZyUajUKzzEkbo67ASlPmH-GQ",
-      authDomain: "nuevo-destino-web.firebaseapp.com",
-      projectId: "nuevo-destino-web",
-      storageBucket: "nuevo-destino-web.firebasestorage.app",
-      messagingSenderId: "287208628191",
-      appId: "1:287208628191:web:cf99598c33cd1614766e6a",
-      measurementId: "G-TP19NYNE9N"
-    };
+const SAMPLES=[
+  {id:'s1',title:'Bariloche Nevado',destination:'Bariloche, Rio Negro',category:'nacional',featured:true,image:'https://images.unsplash.com/photo-1547981609-4b6bfe67ca0b?w=800&q=80',description:'Descubri la magia del sur argentino con nieve, lagos cristalinos y gastronomia de altura. Incluye ski, traslados y excursiones guiadas.',duration:'7 dias',people:'Desde 2 pax',includes:['Vuelos','Hotel 4','Traslados','Excursiones'],price:'USD 1.850',priceNote:'por persona'},
+  {id:'s2',title:'Cancun Todo Incluido',destination:'Cancun, Mexico',category:'internacional',featured:false,image:'https://images.unsplash.com/photo-1512813195386-6cf811ad3542?w=800&q=80',description:'Playas turquesas, todo incluido y el mejor clima del Caribe. Paquete ideal para parejas y familias.',duration:'10 dias',people:'Desde 2 pax',includes:['Vuelos','Resort 5 TI','Traslados','Seguro'],price:'USD 2.400',priceNote:'por persona'},
+  {id:'s3',title:'Egresados Bariloche 2025',destination:'Bariloche, Rio Negro',category:'egresados',featured:true,image:'https://images.unsplash.com/photo-1574236170878-0c5c29da05f9?w=800&q=80',description:'El viaje de egresados mas elegido. Organizacion integral, coordinadores y seguridad las 24hs.',duration:'5 dias',people:'Grupos de 30+',includes:['Omnibus','Hotel','Actividades','Coordinadores'],price:'Consultar',priceNote:'precio por grupo'},
+  {id:'s4',title:'Mendoza & Valle de Uco',destination:'Mendoza',category:'nacional',featured:false,image:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80',description:'Bodegas boutique, gastronomia de autor y paisajes de los Andes.',duration:'4 dias',people:'Desde 2 pax',includes:['Hotel 4','Wine tour','Traslados'],price:'USD 680',priceNote:'por persona'},
+  {id:'s5',title:'Europa Clasica',destination:'Paris - Roma - Barcelona',category:'internacional',featured:false,image:'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',description:'Tres capitales en un circuito premium. Arte, historia y cultura europea con guias en espanol.',duration:'15 dias',people:'Grupo reducido',includes:['Vuelos','Hoteles 4','Guias','Traslados'],price:'USD 4.200',priceNote:'por persona'},
+  {id:'s6',title:'Nordeste Grupal',destination:'Cataratas del Iguazu & Ibera',category:'grupal',featured:false,image:'https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80',description:'Circuito por el Nordeste: Cataratas, Esteros del Ibera y cultura guarani desde Rosario.',duration:'6 dias',people:'Grupos de 15+',includes:['Omnibus desde Rosario','Hotel','Excursiones'],price:'USD 920',priceNote:'por persona'},
+];
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
-
-    async function loadPackages() {
-      const querySnapshot = await getDocs(collection(db, "packages"));
-      const paquetes = [];
-
-      querySnapshot.forEach((docu) => {
-        paquetes.push({ id: docu.id, ...docu.data() });
-      });
-
-      return paquetes;
-    }
-
-    window.addPackage = async function() {
-      const title = document.getElementById("title").value;
-      const price = document.getElementById("price").value;
-
-      await addDoc(collection(db, "packages"), { title, price });
-
-      alert("Agregado");
-      location.reload();
-    }
-
-    window.deletePackage = async function(id) {
-      await deleteDoc(doc(db, "packages", id));
-      location.reload();
-    }
-
-    class AgencyPage {
-      constructor() {
-        this.packages = [];
-        this._init();
-      }
-
-      async _init() {
-        this.packages = await loadPackages();
-        this._renderGrid();
-        this._renderAdminList();
-      }
-
-      _renderGrid() {
-        const container = document.querySelector("#packages-container");
-        container.innerHTML = this.packages.map(p => `
-          <div style="border:1px solid #ccc; padding:10px; margin:10px;">
-            <h3>${p.title}</h3>
-            <p>${p.price}</p>
+class AgencyPage{
+  constructor(){
+    this.lang='es';this.filter='all';this.search='';
+    this.grid=document.getElementById('js-packages-grid');
+    this._initNav();this._initFilters();this._initLang();this._initModal();this._initReveal();
+    this.render();
+  }
+  get pkgs(){const p=load();return p.length?p:SAMPLES}
+  filtered(){
+    return this.pkgs.filter(p=>{
+      const mc=this.filter==='all'||p.category===this.filter;
+      const q=this.search.toLowerCase();
+      const mq=!q||[p.title,p.destination,p.description].some(s=>(s||'').toLowerCase().includes(q));
+      return mc&&mq;
+    });
+  }
+  render(){
+    const list=this.filtered();
+    const bm=this.lang==='en'?BLE:BL;
+    if(!list.length){
+      this.grid.innerHTML='<div class="packages-empty"><div class="packages-empty__icon">&#128506;</div><p class="packages-empty__text">'+(this.lang==='en'?'No packages found.':'No se encontraron paquetes.')+'</p></div>';
+    } else {
+      this.grid.innerHTML=list.map(p=>`
+        <article class="pkg-card" data-reveal="up">
+          <div class="pkg-card__img-wrap">
+            <img class="pkg-card__img" src="${p.image||FALLBACK_IMG}" alt="${p.title}" loading="lazy"/>
+            <span class="pkg-card__badge pkg-card__badge--${p.category}">${bm[p.category]||p.category}</span>
+            ${p.featured?`<span class="pkg-card__featured">${this.lang==='en'?'Featured':'Destacado'}</span>`:''}
           </div>
-        `).join("");
-      }
-
-      _renderAdminList() {
-        const list = document.getElementById("admin-list");
-        list.innerHTML = this.packages.map(p => `
-          <div>
-            ${p.title}
-            <button onclick="deletePackage('${p.id}')">X</button>
+          <div class="pkg-card__body">
+            <p class="pkg-card__dest">${p.destination||''}</p>
+            <h2 class="pkg-card__title">${p.title}</h2>
+            <p class="pkg-card__desc">${p.description||''}</p>
+            <div class="pkg-card__meta">
+              ${p.duration?`<span class="pkg-card__meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${p.duration}</span>`:''}
+              ${p.people?`<span class="pkg-card__meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${p.people}</span>`:''}
+              <span class="pkg-card__price">${p.price||''} <span>${p.priceNote||''}</span></span>
+            </div>
           </div>
-        `).join("");
-      }
+          <div class="pkg-card__footer">
+            <button class="pkg-card__cta" data-open="${p.id}">
+              <span>${this.lang==='en'?'View package':'Ver paquete'}</span><span>&rarr;</span>
+            </button>
+          </div>
+        </article>`).join('');
+      this.grid.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>this.openModal(b.dataset.open)));
+      this.grid.querySelectorAll('[data-reveal]').forEach(el=>{el.classList.remove('is-visible');this._obs?.observe(el)});
     }
-
-    new AgencyPage();
-
-    // LOGIN UI
-    document.getElementById("adminBtn").onclick = () => {
-      document.getElementById("adminLogin").style.display = "block";
+    const n=list.length;
+    document.getElementById('js-count-display').innerHTML=`<strong>${n}</strong> ${this.lang==='en'?`package${n!==1?'s':''} found`:`paquete${n!==1?'s':''} encontrado${n!==1?'s':''}`}`;
+  }
+  openModal(id){
+    const p=this.pkgs.find(x=>x.id===id);if(!p)return;
+    const bm=this.lang==='en'?BLE:BL;
+    document.getElementById('modal-img').src=p.image||FALLBACK_IMG;
+    document.getElementById('modal-img').alt=p.title;
+    document.getElementById('modal-tag').textContent=(bm[p.category]||p.category)+' · '+(p.destination||'');
+    document.getElementById('modal-title').textContent=p.title;
+    document.getElementById('modal-desc').textContent=p.description||'';
+    document.getElementById('modal-chips').innerHTML=(p.includes||[]).map(i=>`<span class="modal__chip">${i}</span>`).join('');
+    document.getElementById('modal-meta').innerHTML=[
+      p.duration?`<div class="modal__meta-item"><span class="modal__meta-label">${this.lang==='en'?'Duration':'Duracion'}</span><span class="modal__meta-val">${p.duration}</span></div>`:'',
+      p.people?`<div class="modal__meta-item"><span class="modal__meta-label">${this.lang==='en'?'For':'Para'}</span><span class="modal__meta-val">${p.people}</span></div>`:'',
+    ].join('');
+    document.getElementById('modal-price').textContent=p.price||'';
+    document.getElementById('modal-price-note').textContent=p.priceNote?(this.lang==='en'?'From · ':'Desde · ')+p.priceNote:'';
+    document.getElementById('modal-wa').href=`https://wa.me/5493413341317?text=${encodeURIComponent('Hola! Me interesa el paquete: '+p.title+'. Me podes dar mas info?')}`;
+    document.getElementById('js-modal-overlay').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  _initModal(){
+    const ov=document.getElementById('js-modal-overlay');
+    document.getElementById('js-modal-close').addEventListener('click',()=>this._closeM());
+    ov.addEventListener('click',e=>{if(e.target===ov)this._closeM()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&ov.classList.contains('open'))this._closeM()});
+  }
+  _closeM(){document.getElementById('js-modal-overlay').classList.remove('open');document.body.style.overflow=''}
+  _initNav(){const n=document.getElementById('js-nav');window.addEventListener('scroll',()=>n.classList.toggle('nav--scrolled',scrollY>40),{passive:true})}
+  _initFilters(){
+    document.querySelectorAll('.filter-btn').forEach(b=>b.addEventListener('click',()=>{
+      document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');this.filter=b.dataset.filter;this.render();
+    }));
+    document.getElementById('js-search').addEventListener('input',e=>{this.search=e.target.value;this.render()});
+  }
+  _initReveal(){
+    this._obs=new IntersectionObserver((entries)=>{
+      entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('is-visible'),i*70);this._obs.unobserve(e.target)}});
+    },{threshold:.08});
+    document.querySelectorAll('[data-reveal]').forEach(el=>this._obs.observe(el));
+  }
+  _initLang(){
+    const S={
+      es:{'nav.nosotros':'Nosotros','nav.traslados':'Traslados','nav.agencia':'Agencia','nav.contacto':'Contacto','nav.cta':'Consultar','agency.tag':'Nuevo Destino Viajes','agency.title1':'Paquetes de','agency.title2':' viaje','agency.sub':'Agencia habilitada. Nacionales, internacionales, egresados y grupales.','filter.label':'Filtrar','filter.all':'Todos','filter.nacional':'Nacional','filter.int':'Internacional','filter.egr':'Egresados','filter.grup':'Grupal','filter.ph':'Buscar destino...','wsp.tooltip':'Escribinos'},
+      en:{'nav.nosotros':'About Us','nav.traslados':'Transfers','nav.agencia':'Agency','nav.contacto':'Contact','nav.cta':'Enquire','agency.tag':'Nuevo Destino Travel','agency.title1':'Travel','agency.title2':' packages','agency.sub':'Licensed agency. Domestic, international, school trips and group travel.','filter.label':'Filter','filter.all':'All','filter.nacional':'Domestic','filter.int':'International','filter.egr':'School Trip','filter.grup':'Group','filter.ph':'Search destination...','wsp.tooltip':'Message us'}
     };
+    const btn=document.getElementById('js-lang-toggle'),flag=document.getElementById('js-lang-flag'),lbl=document.getElementById('js-lang-label');
+    btn.addEventListener('click',()=>{
+      this.lang=this.lang==='es'?'en':'es';
+      const d=S[this.lang];
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(d[k]!==undefined)el.textContent=d[k]});
+      document.querySelectorAll('[data-i18n-ph]').forEach(el=>{const k=el.dataset.i18nPh;if(d[k]!==undefined)el.placeholder=d[k]});
+      document.documentElement.lang=this.lang;
+      flag.textContent=this.lang==='en'?'&#127462;&#127479;':'&#127468;&#127463;';
+      lbl.textContent=this.lang==='en'?'ES':'EN';
+      this.render();
+    });
+  }
+}
 
-    // 🔐 LOGIN REAL CON FIREBASE
-    window.login = async function() {
-      const email = document.getElementById("user").value;
-      const pass = document.getElementById("pass").value;
-
-      try {
-        await signInWithEmailAndPassword(auth, email, pass);
-
-        document.getElementById("adminLogin").style.display = "none";
-        document.getElementById("adminPanel").style.right = "0";
-
-      } catch (error) {
-        alert("Error: " + error.message);
+class AdminDrawer{
+  constructor(pg){
+    this.pg=pg;this.loggedIn=false;this.editingId=null;this.deletingId=null;
+    this.drawer=document.getElementById('js-admin-drawer');
+    this.backdrop=document.getElementById('js-admin-backdrop');
+    this.trigger=document.getElementById('js-admin-trigger');
+    this.confirm=document.getElementById('js-confirm');
+    this._initTrigger();this._initTabs();this._initLogin();this._initForm();this._initConfirm();
+  }
+  open(){this.drawer.classList.add('open');this.backdrop.classList.add('open');this.trigger.classList.add('drawer-open');document.body.style.overflow='hidden'}
+  close(){this.drawer.classList.remove('open');this.backdrop.classList.remove('open');this.trigger.classList.remove('drawer-open');document.body.style.overflow=''}
+  _initTrigger(){
+    this.trigger.addEventListener('click',()=>this.open());
+    this.backdrop.addEventListener('click',()=>this.close());
+    document.getElementById('js-drawer-close').addEventListener('click',()=>this.close());
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&this.drawer.classList.contains('open'))this.close()});
+  }
+  _initTabs(){
+    document.querySelectorAll('.drawer__tab').forEach(t=>t.addEventListener('click',()=>this.goTab(t.dataset.tab)));
+  }
+  goTab(name){
+    document.querySelectorAll('.drawer__tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===name));
+    document.querySelectorAll('.drawer-page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('dw-page-'+name).classList.add('active');
+    if(name==='list')this.renderList();
+    if(name==='stats')this.renderStats();
+    if(name==='form'&&!this.editingId)this.resetForm();
+  }
+  showTabs(v){document.getElementById('js-drawer-tabs').style.display=v?'flex':'none'}
+  _initLogin(){
+    const tryLogin=()=>{
+      const u=document.getElementById('dw-user').value.trim();
+      const p=document.getElementById('dw-pass').value;
+      if(u===CREDS.user&&p===CREDS.pass){
+        this.loggedIn=true;this.showTabs(true);this.goTab('list');
+      } else {
+        document.getElementById('dw-error').textContent='Credenciales incorrectas.';
+        document.getElementById('dw-pass').value='';
+        document.getElementById('dw-pass').focus();
       }
-    }
+    };
+    document.getElementById('dw-login-btn').addEventListener('click',tryLogin);
+    document.getElementById('dw-pass').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin()});
+    document.getElementById('dw-user').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin()});
+    const logout=()=>{
+      this.loggedIn=false;this.editingId=null;
+      this.showTabs(false);
+      document.querySelectorAll('.drawer-page').forEach(p=>p.classList.remove('active'));
+      document.getElementById('dw-page-login').classList.add('active');
+      document.getElementById('dw-user').value='';
+      document.getElementById('dw-pass').value='';
+      document.getElementById('dw-error').textContent='';
+    };
+    document.getElementById('dw-logout-btn').addEventListener('click',logout);
+    document.getElementById('dw-logout-btn2').addEventListener('click',logout);
+  }
+  renderList(){
+    const pkgs=load().length?load():SAMPLES;
+    const list=document.getElementById('dw-pkg-list');
+    if(!pkgs.length){list.innerHTML='<div class="dw-empty"><div class="dw-empty__icon">&#128230;</div><p class="dw-empty__text">No hay paquetes aun.</p></div>';return}
+    list.innerHTML=pkgs.map(p=>`
+      <div class="dw-pkg-row">
+        <img class="dw-pkg-row__img" src="${p.image||FALLBACK_IMG}" alt="${p.title}" onerror="this.src='${FALLBACK_IMG}'"/>
+        <div class="dw-pkg-row__info">
+          <p class="dw-pkg-row__title">${p.title}</p>
+          <p class="dw-pkg-row__dest">${p.destination||''}</p>
+        </div>
+        <span class="dw-pkg-row__badge dw-pkg-row__badge--${p.category}">${BL[p.category]||p.category}</span>
+        <div class="dw-pkg-row__actions">
+          <button class="dw-icon-btn" data-edit="${p.id}" title="Editar">&#9998;</button>
+          <button class="dw-icon-btn dw-icon-btn--del" data-del="${p.id}" title="Eliminar">&#128465;</button>
+        </div>
+      </div>`).join('');
+    list.querySelectorAll('[data-edit]').forEach(b=>b.addEventListener('click',()=>this.startEdit(b.dataset.edit)));
+    list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{this.deletingId=b.dataset.del;this.confirm.classList.add('open')}));
+    document.getElementById('dw-go-add-btn').onclick=()=>{this.editingId=null;this.goTab('form')};
+  }
+  renderStats(){
+    const pkgs=load().length?load():SAMPLES;
+    document.getElementById('dw-st-total').textContent=pkgs.length;
+    document.getElementById('dw-st-feat').textContent=pkgs.filter(p=>p.featured).length;
+    document.getElementById('dw-st-nac').textContent=pkgs.filter(p=>p.category==='nacional').length;
+    document.getElementById('dw-st-int').textContent=pkgs.filter(p=>p.category==='internacional').length;
+    document.getElementById('dw-st-egr').textContent=pkgs.filter(p=>p.category==='egresados').length;
+    document.getElementById('dw-st-grup').textContent=pkgs.filter(p=>p.category==='grupal').length;
+  }
+  resetForm(){
+    document.getElementById('dw-pkg-form').reset();
+    document.getElementById('dw-f-id').value='';
+    document.getElementById('dw-img-preview').classList.remove('show');
+    document.getElementById('dw-form-title').textContent='Nuevo paquete';
+    document.getElementById('dw-form-sub').textContent='Completa los datos y guarda.';
+    document.getElementById('dw-submit-label').textContent='Guardar paquete';
+  }
+  startEdit(id){
+    const pkgs=load().length?load():SAMPLES;
+    const p=pkgs.find(x=>x.id===id);if(!p)return;
+    this.editingId=id;
+    document.getElementById('dw-f-id').value=p.id;
+    document.getElementById('dw-f-title').value=p.title||'';
+    document.getElementById('dw-f-dest').value=p.destination||'';
+    document.getElementById('dw-f-cat').value=p.category||'';
+    document.getElementById('dw-f-duration').value=p.duration||'';
+    document.getElementById('dw-f-price').value=p.price||'';
+    document.getElementById('dw-f-price-note').value=p.priceNote||'';
+    document.getElementById('dw-f-people').value=p.people||'';
+    document.getElementById('dw-f-img').value=p.image||'';
+    document.getElementById('dw-f-desc').value=p.description||'';
+    document.getElementById('dw-f-includes').value=(p.includes||[]).join(', ');
+    document.getElementById('dw-f-featured').checked=!!p.featured;
+    const pv=document.getElementById('dw-img-preview');
+    if(p.image){pv.src=p.image;pv.classList.add('show')}else pv.classList.remove('show');
+    document.getElementById('dw-form-title').textContent='Editar paquete';
+    document.getElementById('dw-form-sub').textContent='Modifica los campos y guarda.';
+    document.getElementById('dw-submit-label').textContent='Guardar cambios';
+    this.goTab('form');
+  }
+  _initForm(){
+    document.getElementById('dw-f-img').addEventListener('input',e=>{
+      const url=e.target.value.trim();
+      const pv=document.getElementById('dw-img-preview');
+      if(url){pv.src=url;pv.classList.add('show')}else pv.classList.remove('show');
+    });
+    document.getElementById('dw-pkg-form').addEventListener('submit',e=>{
+      e.preventDefault();
+      const title=document.getElementById('dw-f-title').value.trim();
+      const dest=document.getElementById('dw-f-dest').value.trim();
+      const cat=document.getElementById('dw-f-cat').value;
+      const desc=document.getElementById('dw-f-desc').value.trim();
+      if(!title||!dest||!cat||!desc){toast('Completa los campos obligatorios (*)');return}
+      const inc=document.getElementById('dw-f-includes').value;
+      const pkg={
+        id:this.editingId||uid(),title,destination:dest,category:cat,description:desc,
+        price:document.getElementById('dw-f-price').value.trim(),
+        priceNote:document.getElementById('dw-f-price-note').value.trim(),
+        duration:document.getElementById('dw-f-duration').value.trim(),
+        people:document.getElementById('dw-f-people').value.trim(),
+        image:document.getElementById('dw-f-img').value.trim(),
+        includes:inc?inc.split(',').map(s=>s.trim()).filter(Boolean):[],
+        featured:document.getElementById('dw-f-featured').checked,
+      };
+      let pkgs=load();if(!pkgs.length)pkgs=[];
+      if(this.editingId){
+        const idx=pkgs.findIndex(x=>x.id===this.editingId);
+        if(idx!==-1)pkgs[idx]=pkg;else pkgs.push(pkg);
+        toast('Paquete actualizado!','ok');
+      } else {pkgs.push(pkg);toast('Paquete agregado!','ok')}
+      save(pkgs);this.editingId=null;
+      this.pg.render();
+      setTimeout(()=>this.goTab('list'),350);
+    });
+    document.getElementById('dw-form-cancel').addEventListener('click',()=>{this.editingId=null;this.goTab('list')});
+  }
+  _initConfirm(){
+    document.getElementById('js-confirm-no').addEventListener('click',()=>{this.deletingId=null;this.confirm.classList.remove('open')});
+    document.getElementById('js-confirm-yes').addEventListener('click',()=>{
+      if(!this.deletingId)return;
+      let pkgs=load().length?load():[...SAMPLES];
+      pkgs=pkgs.filter(p=>p.id!==this.deletingId);
+      save(pkgs);this.deletingId=null;
+      this.confirm.classList.remove('open');
+      toast('Paquete eliminado.','err');
+      this.renderList();this.pg.render();
+    });
+  }
+}
 
-  </script>
-
+document.addEventListener('DOMContentLoaded',()=>{
+  const pg=new AgencyPage();
+  new AdminDrawer(pg);
+});
+</script>
 </body>
 </html>
