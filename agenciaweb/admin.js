@@ -50,7 +50,7 @@ const FIREBASE_CONFIG = {
 };
 
 /* ── Correo autorizado para el admin ─────────────────────── */
-const ADMIN_EMAIL = 'Egarcia@nuevodestinoviajes.com';
+const ADMIN_EMAIL = 'egarcia@nuevodestinoviajes.com';
 
 /* ── Inicialización ───────────────────────────────────────── */
 const app  = initializeApp(FIREBASE_CONFIG);
