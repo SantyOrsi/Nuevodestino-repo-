@@ -21,12 +21,12 @@
    https://console.firebase.google.com → Configuración del proyecto
 ============================================================ */
 const FIREBASE_CONFIG = {
-  apiKey:            'TU_API_KEY',
-  authDomain:        'TU_PROJECT.firebaseapp.com',
-  projectId:         'TU_PROJECT_ID',
-  storageBucket:     'TU_PROJECT.appspot.com',
-  messagingSenderId: 'TU_SENDER_ID',
-  appId:             'TU_APP_ID',
+  apiKey: "AIzaSyA-rqJU8LIZyUajUKzzEkbo67ASlPmH-GQ",
+  authDomain: "nuevo-destino-web.firebaseapp.com",
+  projectId: "nuevo-destino-web",
+  storageBucket: "nuevo-destino-web.firebasestorage.app",
+  messagingSenderId: "287208628191",
+  appId: "1:287208628191:web:cf99598c33cd1614766e6a",
 };
 
 
