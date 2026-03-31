@@ -855,3 +855,6 @@ body {
   }
 }
 .admin-layout[hidden] { display: none; }
+#js-admin-layout[hidden] {
+  display: none !important;
+}
