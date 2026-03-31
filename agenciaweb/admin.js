@@ -126,37 +126,28 @@ class AuthManager {
 
   /* ── Helpers de UI ────────────────────────────────────────── */
 
-   _mostrarAdmin(user) {
-  this._loginScreen.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-  this._loginScreen.style.opacity    = '0';
-  this._loginScreen.style.transform  = 'translateY(-20px)';
+   
+ _mostrarAdmin(user) {
+  this._loginScreen.hidden = false;
+  this._adminLayout.hidden = false;
 
+  if (this._adminEmail) {
+    this._adminEmail.textContent = user.email;
+  }
+
+  /* Scroll suave hacia el panel admin */
   setTimeout(() => {
-    this._loginScreen.hidden = true;
-    this._loginScreen.style.opacity   = '';
-    this._loginScreen.style.transform = '';
+    this._adminLayout.scrollIntoView({ behavior: 'smooth' });
 
-    this._adminLayout.hidden  = false;
-    this._adminLayout.style.opacity   = '0';
-    this._adminLayout.style.transform = 'translateY(20px)';
-    this._adminLayout.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    /* Ocultar el login después del scroll */
+    setTimeout(() => {
+      this._loginScreen.hidden = true;
+    }, 800);
+  }, 300);
 
-    /* Pequeño delay para que el navegador procese el display */
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        this._adminLayout.style.opacity   = '1';
-        this._adminLayout.style.transform = 'translateY(0)';
-      });
-    });
-
-    if (this._adminEmail) {
-      this._adminEmail.textContent = user.email;
-    }
-
-    if (typeof this._onLoginSuccess === 'function') {
-      this._onLoginSuccess(user);
-    }
-  }, 400);
+  if (typeof this._onLoginSuccess === 'function') {
+    this._onLoginSuccess(user);
+  }
 }
   /**
    * Traduce los códigos de error de Firebase a mensajes legibles.
