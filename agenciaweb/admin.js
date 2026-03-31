@@ -126,9 +126,28 @@ class AuthManager {
 
   /* ── Helpers de UI ────────────────────────────────────────── */
 
-  _mostrarAdmin(user) {
+   _mostrarAdmin(user) {
+  this._loginScreen.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+  this._loginScreen.style.opacity    = '0';
+  this._loginScreen.style.transform  = 'translateY(-20px)';
+
+  setTimeout(() => {
     this._loginScreen.hidden = true;
-    this._adminLayout.hidden = false;
+    this._loginScreen.style.opacity   = '';
+    this._loginScreen.style.transform = '';
+
+    this._adminLayout.hidden  = false;
+    this._adminLayout.style.opacity   = '0';
+    this._adminLayout.style.transform = 'translateY(20px)';
+    this._adminLayout.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+    /* Pequeño delay para que el navegador procese el display */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this._adminLayout.style.opacity   = '1';
+        this._adminLayout.style.transform = 'translateY(0)';
+      });
+    });
 
     if (this._adminEmail) {
       this._adminEmail.textContent = user.email;
@@ -137,35 +156,8 @@ class AuthManager {
     if (typeof this._onLoginSuccess === 'function') {
       this._onLoginSuccess(user);
     }
-  }
-
-  _mostrarLogin() {
-    this._loginScreen.hidden = false;
-    this._adminLayout.hidden = true;
-    this._loginForm?.reset();
-    this._ocultarError();
-    this._setLoginLoading(false);
-  }
-
-  _mostrarError(msg) {
-    if (!this._loginError) return;
-    this._loginError.textContent = msg;
-    this._loginError.hidden = false;
-  }
-
-  _ocultarError() {
-    if (!this._loginError) return;
-    this._loginError.hidden = true;
-    this._loginError.textContent = '';
-  }
-
-  _setLoginLoading(loading) {
-    if (!this._loginBtn) return;
-    this._loginBtn.disabled = loading;
-    const span = this._loginBtn.querySelector('span');
-    if (span) span.textContent = loading ? 'Ingresando…' : 'Ingresar →';
-  }
-
+  }, 400);
+}
   /**
    * Traduce los códigos de error de Firebase a mensajes legibles.
    * @param   {string} code
