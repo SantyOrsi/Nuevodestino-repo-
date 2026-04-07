@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin · Nuevo Destino Viajes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- ── LOGIN ─────────────────────────────────────────────── -->
+  <section class="login-screen" id="js-login-screen" aria-labelledby="login-heading">
+    <div class="login-bg">
+      <div class="login-bg__orb login-bg__orb--1"></div>
+      <div class="login-bg__orb login-bg__orb--2"></div>
+      <div class="login-bg__orb login-bg__orb--3"></div>
+    </div>
+    <div class="login-screen__card">
+      <a href="index.html" class="login-screen__logo-link">
+        <img src="https://i.ibb.co/67HdS4qF/image-removebg-preview.png" alt="Grupo Nuevo Destino" class="login-screen__logo" />
+      </a>
+      <p class="login-screen__tag">Panel de administración</p>
+      <h1 class="login-screen__heading" id="login-heading">Acceso <em>privado</em></h1>
+      <p class="login-screen__sub">Ingresá con las credenciales de administrador para gestionar los paquetes.</p>
+
+      <form class="login-form" id="js-login-form" novalidate>
+        <div class="form-field">
+          <label class="form-field__label" for="login-email">Email</label>
+          <input class="form-field__input" id="login-email" type="email" placeholder="correo@ejemplo.com" autocomplete="email" required />
+        </div>
+        <div class="form-field">
+          <label class="form-field__label" for="login-pass">Contraseña</label>
+          <div class="form-field__pass-wrap">
+            <input class="form-field__input" id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password" required />
+            <button class="form-field__eye" type="button" id="js-toggle-pass" aria-label="Mostrar contraseña">👁</button>
+          </div>
+        </div>
+        <p class="login-error" id="js-login-error" hidden aria-live="polite"></p>
+        <button class="btn btn--submit" type="submit" id="js-login-btn">
+          <span id="js-login-btn-label">Ingresar →</span>
+        </button>
+      </form>
+      <a href="index.html" class="login-screen__back">← Volver al sitio</a>
+    </div>
+  </section>
+
+
+  <!-- ── PANEL ADMIN ────────────────────────────────────────── -->
+  <div class="admin-layout" id="js-admin-layout" hidden>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="Panel de navegación">
+      <div class="sidebar__header">
+        <a href="index.html" class="sidebar__logo-link">
+          <img src="https://i.ibb.co/67HdS4qF/image-removebg-preview.png" alt="Grupo Nuevo Destino" class="sidebar__logo" />
+        </a>
+        <span class="sidebar__badge">Admin</span>
+      </div>
+      <nav class="sidebar__nav" aria-label="Navegación del panel">
+        <button class="sidebar__nav-item sidebar__nav-item--active" data-panel="paquetes">
+          <span class="sidebar__nav-icon">📦</span> Paquetes
+        </button>
+        <button class="sidebar__nav-item" data-panel="nuevo">
+          <span class="sidebar__nav-icon">➕</span> Nuevo paquete
+        </button>
+      </nav>
+      <div class="sidebar__footer">
+        <p class="sidebar__user-email" id="js-admin-email"></p>
+        <button class="sidebar__logout-btn" id="js-logout-btn">Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="admin-main" id="js-admin-main">
+
+      <!-- PANEL: Lista de paquetes -->
+      <section class="admin-panel" id="panel-paquetes" aria-labelledby="panel-paquetes-heading">
+        <div class="admin-panel__header">
+          <div>
+            <p class="admin-tag">Gestión</p>
+            <h2 class="admin-panel__heading" id="panel-paquetes-heading">Paquetes publicados</h2>
+          </div>
+          <button class="btn btn--solid-yellow" id="js-nuevo-paquete-btn"><span>+ Nuevo paquete</span></button>
+        </div>
+
+        <!-- Cards grid -->
+        <div class="paquetes-grid" id="js-paquetes-grid" aria-live="polite"></div>
+
+        <!-- Estado vacío -->
+        <div class="tabla-empty" id="js-tabla-empty" hidden>
+          <p class="tabla-empty__icon">📦</p>
+          <p class="tabla-empty__text">No hay paquetes cargados todavía.</p>
+          <button class="btn btn--solid" id="js-crear-primero-btn"><span>Crear el primero</span></button>
+        </div>
+
+        <!-- Loader -->
+        <div class="tabla-loader" id="js-tabla-loader" aria-label="Cargando paquetes">
+          <div class="tabla-loader__spinner"></div>
+          <p class="tabla-loader__text">Cargando paquetes...</p>
+        </div>
+      </section>
+
+
+      <!-- PANEL: Formulario nuevo / editar -->
+      <section class="admin-panel" id="panel-nuevo" hidden aria-labelledby="panel-form-heading">
+        <div class="admin-panel__header">
+          <div>
+            <p class="admin-tag" id="js-form-tag">Nuevo paquete</p>
+            <h2 class="admin-panel__heading" id="panel-form-heading">Cargá los datos del paquete</h2>
+          </div>
+          <button class="btn btn--ghost-dark" id="js-cancelar-btn"><span>← Cancelar</span></button>
+        </div>
+
+        <form class="paquete-form" id="js-paquete-form" novalidate>
+          <input type="hidden" id="paquete-id" />
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-field__label" for="p-titulo">Título del paquete *</label>
+              <input class="form-field__input" id="p-titulo" type="text" placeholder="Ej: Bariloche 7 días" required />
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="p-categoria">Categoría *</label>
+              <select class="form-field__input" id="p-categoria" required>
+                <option value="">Seleccioná una categoría…</option>
+                <option value="nacional">Nacional</option>
+                <option value="internacional">Internacional</option>
+                <option value="egresados">Egresados</option>
+                <option value="grupal">Grupal</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-field__label" for="p-descripcion">Descripción</label>
+            <textarea class="form-field__input form-field__input--textarea" id="p-descripcion" placeholder="Describí el paquete: destino, actividades, incluye/no incluye, alojamiento…"></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-field__label" for="p-precio">Precio (ARS)</label>
+              <input class="form-field__input" id="p-precio" type="number" placeholder="Ej: 250000" min="0" />
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="p-duracion">Duración</label>
+              <input class="form-field__input" id="p-duracion" type="text" placeholder="Ej: 7 días / 6 noches" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-field">
+              <label class="form-field__label" for="p-personas">Personas</label>
+              <input class="form-field__input" id="p-personas" type="text" placeholder="Ej: Desde 2 personas" />
+            </div>
+            <div class="form-field">
+              <label class="form-field__label" for="p-salida">Fecha de salida</label>
+              <input class="form-field__input" id="p-salida" type="text" placeholder="Ej: 15 de julio 2026" />
+            </div>
+          </div>
+
+          <!-- IMAGEN: URL o subida de archivo -->
+          <div class="form-field">
+            <label class="form-field__label">Imagen de fondo del paquete</label>
+
+            <div class="img-upload-tabs" id="js-img-tabs">
+              <button type="button" class="img-upload-tab img-upload-tab--active" data-tab="url">🔗 URL</button>
+              <button type="button" class="img-upload-tab" data-tab="file">📁 Subir archivo</button>
+            </div>
+
+            <!-- Tab URL -->
+            <div class="img-tab-panel" id="js-tab-url">
+              <input class="form-field__input" id="p-imagen" type="url" placeholder="https://..." />
+              <p class="form-field__hint">Pegá la URL de una imagen del destino (jpg, png, webp).</p>
+            </div>
+
+            <!-- Tab File -->
+            <div class="img-tab-panel" id="js-tab-file" hidden>
+              <div class="file-drop-zone" id="js-drop-zone">
+                <div class="file-drop-zone__content">
+                  <span class="file-drop-zone__icon">🖼️</span>
+                  <p class="file-drop-zone__text">Arrastrá una imagen aquí o<br/><strong>hacé click para seleccionar</strong></p>
+                  <p class="file-drop-zone__hint">JPG, PNG, WEBP — máx. 5 MB</p>
+                </div>
+                <input class="file-drop-zone__input" id="js-file-input" type="file" accept="image/jpeg,image/png,image/webp" aria-label="Seleccionar imagen" />
+              </div>
+              <div class="upload-progress" id="js-upload-progress" hidden>
+                <div class="upload-progress__bar-wrap">
+                  <div class="upload-progress__bar" id="js-upload-bar"></div>
+                </div>
+                <p class="upload-progress__text" id="js-upload-text">Subiendo imagen…</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview -->
+          <div class="img-preview" id="js-img-preview" hidden>
+            <p class="form-field__label">Vista previa</p>
+            <div class="img-preview__wrap">
+              <img class="img-preview__img" id="js-img-preview-img" src="" alt="Vista previa" />
+              <button type="button" class="img-preview__remove" id="js-img-remove" aria-label="Eliminar imagen">✕</button>
+            </div>
+          </div>
+
+          <p class="form-msg form-msg--error"  id="js-form-error"   hidden aria-live="polite"></p>
+          <p class="form-msg form-msg--success" id="js-form-success" hidden aria-live="polite"></p>
+
+          <div class="paquete-form__actions">
+            <button class="btn btn--solid-yellow" type="submit" id="js-form-submit-btn">
+              <span id="js-form-submit-label">Guardar paquete</span>
+            </button>
+            <button class="btn btn--ghost-dark" type="button" id="js-cancelar-form-btn"><span>Cancelar</span></button>
+          </div>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- MODAL CONFIRMAR ELIMINACIÓN -->
+  <div class="confirm-overlay" id="js-confirm-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-heading" hidden>
+    <div class="confirm-modal">
+      <h3 class="confirm-modal__heading" id="confirm-heading">¿Eliminar paquete?</h3>
+      <p class="confirm-modal__text" id="js-confirm-text">Esta acción no se puede deshacer.</p>
+      <div class="confirm-modal__actions">
+        <button class="btn btn--danger" id="js-confirm-ok">Eliminar</button>
+        <button class="btn btn--ghost-dark" id="js-confirm-cancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="js-toast" aria-live="polite" hidden></div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
