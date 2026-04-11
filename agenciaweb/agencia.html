@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agencia · Nuevo Destino Viajes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="agencia.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       NAVIGATION
+  ============================================================ -->
+  <nav class="nav" id="js-nav">
+    <a href="index.html" class="nav__logo">
+      <img
+        src="https://i.ibb.co/67HdS4qF/image-removebg-preview.png"
+        alt="Grupo Nuevo Destino"
+        class="nav__logo-img"
+      />
+    </a>
+
+    <ul class="nav__links" role="list">
+      <li><a href="index.html#nosotros" data-i18n="nav.nosotros">Nosotros</a></li>
+      <li><a href="traslados.html"      data-i18n="nav.traslados">Traslados</a></li>
+      <li><a href="agencia.html"        class="nav__links-active" data-i18n="nav.agencia">Agencia</a></li>
+      <li><a href="index.html#contacto" data-i18n="nav.contacto">Contacto</a></li>
+    </ul>
+
+    <div class="nav__right">
+      <a href="index.html#contacto" class="nav__cta" data-i18n="nav.cta">Consultar</a>
+
+      <!-- Acceso al panel de Admin -->
+      <button class="nav__admin-btn" id="js-admin-btn" aria-label="Panel de administración">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span data-i18n="nav.admin">Admin</span>
+      </button>
+
+      <!-- Toggle de idioma ES / EN -->
+      <button class="lang-toggle" id="js-lang-toggle" aria-label="Cambiar idioma">
+        <span class="lang-toggle__flag" id="js-lang-flag">🇬🇧</span>
+        <span class="lang-toggle__label" id="js-lang-label">EN</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="agencia-hero" aria-labelledby="agencia-hero-heading">
+    <div class="agencia-hero__content">
+
+      <p class="agencia-hero__eyebrow" id="js-hero-eyebrow">
+        <span class="agencia-hero__eyebrow-line" aria-hidden="true"></span>
+        <span data-i18n="hero.eyebrow">Agencia habilitada · Turismo nacional e internacional</span>
+      </p>
+
+      <h1 class="agencia-hero__title" id="agencia-hero-heading">
+        <span class="agencia-hero__title-line" data-i18n="hero.title1">Viajá con</span>
+        <span class="agencia-hero__title-line"><em data-i18n="hero.title2">quienes saben</em></span>
+        <span class="agencia-hero__title-line" data-i18n="hero.title3">hacerlo.</span>
+      </h1>
+
+      <p class="agencia-hero__desc" id="js-hero-desc" data-i18n="hero.desc">
+        Paquetes nacionales e internacionales y viajes grupales.
+        Armamos cada itinerario a medida, con el respaldo de más de 15 años de experiencia.
+      </p>
+
+      <div class="agencia-hero__actions" id="js-hero-actions">
+        <a href="#paquetes" class="btn btn--hero-solid">
+          <span data-i18n="hero.btn1">Ver paquetes</span>
+        </a>
+        <a href="index.html#contacto" class="btn btn--hero-ghost">
+          <span data-i18n="hero.btn2">Consultar un viaje</span>
+          <span class="btn__arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Chips de categorías -->
+    <div class="agencia-hero__chips" id="js-hero-chips">
+      <span class="agencia-chip agencia-chip--yellow">✈ <span data-i18n="chip.internacional">Internacional</span></span>
+      <span class="agencia-chip">🏔 <span data-i18n="chip.nacional">Nacional</span></span>
+      <span class="agencia-chip agencia-chip--yellow">👥 <span data-i18n="chip.grupal">Grupal</span></span>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       MARQUEE STRIP
+  ============================================================ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track">
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.1">Paquetes Nacionales</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.2">Turismo Internacional</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.3">Turismo Grupal</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.4">Agencia Habilitada</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.5">Itinerarios a Medida</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.6">Soporte 24/7</span></div>
+      <!-- Duplicado para loop infinito -->
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.1">Paquetes Nacionales</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.2">Turismo Internacional</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.3">Turismo Grupal</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.4">Agencia Habilitada</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.5">Itinerarios a Medida</span></div>
+      <div class="marquee__item"><span class="marquee__dot"></span><span data-i18n="marquee.6">Soporte 24/7</span></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SECCIÓN PAQUETES
+  ============================================================ -->
+  <section class="paquetes-section" id="paquetes" aria-labelledby="paquetes-heading">
+
+    <div class="paquetes-section__header" data-reveal="up">
+      <p class="section__tag" data-i18n="paquetes.tag">Nuestros paquetes</p>
+      <h2 class="paquetes-section__heading" id="paquetes-heading">
+        <span data-i18n="paquetes.heading1">Encontrá tu próximo</span>
+        <em data-i18n="paquetes.heading2"> destino</em>
+      </h2>
+      <p class="paquetes-section__sub" data-i18n="paquetes.sub">
+        Filtrá por categoría y explorá todas las opciones disponibles.
+      </p>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros" role="group" aria-label="Filtrar paquetes" data-reveal="up">
+      <button class="filtro-btn filtro-btn--active" data-filtro="todos"        data-i18n="filtro.todos">Todos</button>
+      <button class="filtro-btn"                   data-filtro="nacional"      data-i18n="filtro.nacional">Nacional</button>
+      <button class="filtro-btn"                   data-filtro="internacional" data-i18n="filtro.internacional">Internacional</button>
+      <button class="filtro-btn"                   data-filtro="grupal"        data-i18n="filtro.grupal">Grupal</button>
+    </div>
+
+    <!-- Grid de tarjetas -->
+    <div class="paquetes-grid" id="js-paquetes-grid" aria-live="polite">
+      <div class="paquetes-empty" id="js-paquetes-empty">
+        <p class="paquetes-empty__icon">🗺</p>
+        <p class="paquetes-empty__text" data-i18n="paquetes.cargando">Cargando paquetes...</p>
+      </div>
+    </div>
+
+    <!-- Sin resultados -->
+    <div class="paquetes-no-result" id="js-no-result" hidden>
+      <p class="paquetes-no-result__text" data-i18n="paquetes.sinResultados">No hay paquetes en esta categoría por el momento.</p>
+      <button class="btn btn--ghost-dark" id="js-limpiar-filtro">
+        <span data-i18n="paquetes.verTodos">Ver todos</span>
+        <span class="btn__arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
+       BANNER CTA
+  ============================================================ -->
+  <section class="cta-banner" data-reveal="up" aria-labelledby="cta-heading">
+    <div class="cta-banner__content">
+      <p class="section__tag cta-banner__tag" data-i18n="cta.tag">¿No encontrás lo que buscás?</p>
+      <h2 class="cta-banner__heading" id="cta-heading">
+        <span data-i18n="cta.heading1">Armamos tu viaje</span>
+        <em data-i18n="cta.heading2"> a medida</em>
+      </h2>
+      <p class="cta-banner__sub" data-i18n="cta.sub">
+        Contanos el destino, las fechas y la cantidad de personas.
+        Un asesor te responde a la brevedad con una propuesta personalizada.
+      </p>
+      <a
+        href="https://wa.me/5493413341317?text=Hola!%20Quiero%20consultar%20un%20paquete%20de%20viaje."
+        class="btn btn--cta"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <span data-i18n="cta.btn">Consultar por WhatsApp</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       FOOTER
+  ============================================================ -->
+  <footer class="footer">
+    <span class="footer__brand">Grupo Nuevo Destino</span>
+    <nav class="footer__nav" aria-label="Footer">
+      <a href="traslados.html"      data-i18n="nav.traslados">Traslados</a>
+      <a href="agencia.html"        data-i18n="nav.agencia">Agencia</a>
+      <a href="index.html#contacto" data-i18n="nav.contacto">Contacto</a>
+    </nav>
+    <small class="footer__copy">© 2026 · Rosario, Argentina</small>
+  </footer>
+
+  <!-- ============================================================
+       MODAL DETALLE PAQUETE
+  ============================================================ -->
+  <div class="modal-overlay" id="js-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+    <div class="modal">
+      <button class="modal__close" id="js-modal-close" aria-label="Cerrar">✕</button>
+      <div class="modal__body" id="js-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       WHATSAPP FLOAT BUTTON
+  ============================================================ -->
+  <a
+    class="wsp-btn"
+    href="https://wa.me/5493413341317?text=Hola!%20Quiero%20consultar."
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Consultar por WhatsApp"
+  >
+    <span class="wsp-btn__tooltip" data-i18n="wsp.tooltip">Escribinos</span>
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <!-- ============================================================
+       MODAL DE LOGIN ADMIN
+  ============================================================ -->
+  <div class="admin-login-overlay" id="js-admin-login-overlay" role="dialog" aria-modal="true" aria-labelledby="admin-login-title" hidden>
+    <div class="admin-login-modal">
+      <button class="admin-login-modal__close" id="js-admin-login-close" aria-label="Cerrar">✕</button>
+
+      <div class="admin-login-modal__header">
+        <div class="admin-login-modal__icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+        </div>
+        <h2 class="admin-login-modal__title" id="admin-login-title">Acceso Administrativo</h2>
+        <p class="admin-login-modal__sub">Ingresá tus credenciales para continuar</p>
+      </div>
+
+      <form class="admin-login-form" id="js-admin-login-form" novalidate>
+        <div class="admin-login-form__field">
+          <label class="admin-login-form__label" for="admin-email">Correo electrónico</label>
+          <input
+            class="admin-login-form__input"
+            type="email"
+            id="admin-email"
+            name="email"
+            placeholder="admin@ejemplo.com"
+            autocomplete="email"
+            required
+          />
+        </div>
+        <div class="admin-login-form__field">
+          <label class="admin-login-form__label" for="admin-password">Contraseña</label>
+          <div class="admin-login-form__pass-wrap">
+            <input
+              class="admin-login-form__input"
+              type="password"
+              id="admin-password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="admin-login-form__toggle-pass" id="js-toggle-pass" aria-label="Mostrar contraseña">
+              <svg class="eye-icon eye-icon--show" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-icon eye-icon--hide" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <p class="admin-login-form__error" id="js-admin-login-error" hidden></p>
+
+        <button type="submit" class="admin-login-form__submit" id="js-admin-login-submit">
+          <span id="js-admin-login-submit-text">Ingresar</span>
+          <span class="admin-login-form__spinner" id="js-admin-login-spinner" hidden>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SIDEBAR DE ADMIN
+  ============================================================ -->
+  <aside class="admin-sidebar" id="js-admin-sidebar" aria-label="Panel de administración" hidden>
+
+    <div class="admin-sidebar__header">
+      <div class="admin-sidebar__header-left">
+        <div class="admin-sidebar__avatar" id="js-admin-avatar">A</div>
+        <div>
+          <p class="admin-sidebar__username" id="js-admin-username">Administrador</p>
+          <p class="admin-sidebar__role">Panel de control</p>
+        </div>
+      </div>
+      <button class="admin-sidebar__close" id="js-admin-sidebar-close" aria-label="Cerrar panel">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <nav class="admin-sidebar__nav">
+      <button class="admin-sidebar__nav-item admin-sidebar__nav-item--active" data-panel="nuevo-paquete">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Nuevo paquete
+      </button>
+      <button class="admin-sidebar__nav-item" data-panel="gestionar-paquetes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Gestionar paquetes
+      </button>
+    </nav>
+
+    <!-- PANEL: Nuevo paquete -->
+    <div class="admin-panel" id="admin-panel-nuevo-paquete">
+      <h3 class="admin-panel__title">Cargar nuevo paquete</h3>
+
+      <form class="admin-form" id="js-admin-form" novalidate>
+
+        <div class="admin-form__field">
+          <label class="admin-form__label" for="pkg-titulo">Título del paquete <span class="admin-form__req">*</span></label>
+          <input class="admin-form__input" type="text" id="pkg-titulo" name="titulo" placeholder="Ej: Bariloche 7 noches" required />
+        </div>
+
+        <div class="admin-form__row">
+          <div class="admin-form__field">
+            <label class="admin-form__label" for="pkg-categoria">Categoría <span class="admin-form__req">*</span></label>
+            <select class="admin-form__input admin-form__select" id="pkg-categoria" name="categoria" required>
+              <option value="">Seleccionar…</option>
+              <option value="nacional">Nacional</option>
+              <option value="internacional">Internacional</option>
+              <option value="grupal">Grupal</option>
+            </select>
+          </div>
+          <div class="admin-form__field">
+            <label class="admin-form__label" for="pkg-catlabel">Etiqueta badge</label>
+            <input class="admin-form__input" type="text" id="pkg-catlabel" name="catlabel" placeholder="Ej: Nacional · Patagonia" />
+          </div>
+        </div>
+
+        <div class="admin-form__row">
+          <div class="admin-form__field">
+            <label class="admin-form__label" for="pkg-precio">Precio (ARS)</label>
+            <input class="admin-form__input" type="number" id="pkg-precio" name="precio" placeholder="Ej: 450000" min="0" />
+          </div>
+          <div class="admin-form__field">
+            <label class="admin-form__label" for="pkg-emoji">Emoji (sin imagen)</label>
+            <input class="admin-form__input" type="text" id="pkg-emoji" name="emoji" placeholder="Ej: 🏔" maxlength="4" />
+          </div>
+        </div>
+
+        <div class="admin-form__row">
+          <div class="admin-form__field">
+            <label class="admin-form__label" for="pkg-duracion">Duración</label>
+            <input class="admin-form__input" type="text" id="pkg-duracion" name="duracion" placeholder="Ej: 7 noches / 8 días" />
+          </div>
+          <div class="admin-form__field">
+            <label class="admin-form__label" for="pkg-personas">Personas</label>
+            <input class="admin-form__input" type="text" id="pkg-personas" name="personas" placeholder="Ej: Mín. 2 personas" />
+          </div>
+        </div>
+
+        <div class="admin-form__field">
+          <label class="admin-form__label" for="pkg-salida">Fecha de salida</label>
+          <input class="admin-form__input" type="text" id="pkg-salida" name="salida" placeholder="Ej: 15 de julio 2025" />
+        </div>
+
+        <div class="admin-form__field">
+          <label class="admin-form__label" for="pkg-descripcion">Descripción</label>
+          <textarea class="admin-form__input admin-form__textarea" id="pkg-descripcion" name="descripcion" rows="4" placeholder="Descripción detallada del paquete, itinerario…"></textarea>
+        </div>
+
+        <div class="admin-form__field">
+          <label class="admin-form__label" for="pkg-includes">Qué incluye <span class="admin-form__label-hint">(uno por línea)</span></label>
+          <textarea class="admin-form__input admin-form__textarea" id="pkg-includes" name="includes" rows="4" placeholder="Transporte ida y vuelta desde Rosario&#10;Alojamiento 5 noches en hotel 3★&#10;Desayuno incluido"></textarea>
+        </div>
+
+        <!-- Imagen -->
+        <div class="admin-form__field">
+          <label class="admin-form__label">Imagen del paquete</label>
+          <div class="admin-form__img-tabs">
+            <button type="button" class="admin-form__img-tab admin-form__img-tab--active" data-img-tab="url">URL de imagen</button>
+            <button type="button" class="admin-form__img-tab" data-img-tab="upload">Subir archivo</button>
+          </div>
+
+          <div class="admin-form__img-panel" id="img-panel-url">
+            <input class="admin-form__input" type="url" id="pkg-imagen-url" name="imagen_url" placeholder="https://..." />
+          </div>
+
+          <div class="admin-form__img-panel" id="img-panel-upload" hidden>
+            <label class="admin-form__upload-zone" id="js-upload-zone" for="pkg-imagen-file">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              <span class="admin-form__upload-text">Arrastrá o hacé clic para subir</span>
+              <span class="admin-form__upload-hint">JPG, PNG, WebP · Máx. 5 MB</span>
+              <input type="file" id="pkg-imagen-file" name="imagen_file" accept="image/*" class="admin-form__file-input" />
+            </label>
+            <div class="admin-form__upload-preview" id="js-upload-preview" hidden>
+              <img id="js-upload-preview-img" src="" alt="Vista previa" />
+              <button type="button" class="admin-form__upload-remove" id="js-upload-remove">✕ Quitar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destacado -->
+        <div class="admin-form__check-row">
+          <input type="checkbox" id="pkg-destacado" name="destacado" class="admin-form__checkbox" />
+          <label for="pkg-destacado" class="admin-form__check-label">Marcar como paquete destacado</label>
+        </div>
+
+        <p class="admin-form__feedback" id="js-admin-form-feedback" hidden></p>
+
+        <div class="admin-form__actions">
+          <button type="button" class="admin-form__btn-secondary" id="js-admin-form-reset">Limpiar</button>
+          <button type="submit" class="admin-form__btn-primary" id="js-admin-form-submit">
+            <span id="js-admin-form-submit-text">Guardar paquete</span>
+            <span class="admin-login-form__spinner" id="js-admin-form-spinner" hidden>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+            </span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- PANEL: Gestionar paquetes -->
+    <div class="admin-panel" id="admin-panel-gestionar-paquetes" hidden>
+      <div class="admin-panel__title-row">
+        <h3 class="admin-panel__title">Paquetes cargados</h3>
+        <button class="admin-panel__refresh" id="js-admin-refresh" aria-label="Actualizar lista">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        </button>
+      </div>
+      <div class="admin-paquetes-list" id="js-admin-paquetes-list">
+        <p class="admin-paquetes-list__empty">Cargando…</p>
+      </div>
+    </div>
+
+    <div class="admin-sidebar__footer">
+      <button class="admin-sidebar__logout" id="js-admin-logout">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Cerrar sesión
+      </button>
+    </div>
+  </aside>
+
+  <!-- Overlay oscuro para el sidebar -->
+  <div class="admin-sidebar-backdrop" id="js-admin-sidebar-backdrop" hidden></div>
+
+  <!-- Firebase SDKs (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <!-- JS sin type="module" para compatibilidad con archivos locales -->
+  <script src="agencia.js"></script>
+</body>
+</html>
