@@ -298,7 +298,7 @@ class ModalController {
         includesHTML +
         precioHTML +
         '<div class="modal__actions">' +
-          '<a href="https://wa.me/5493413341317?text=' + wpText + '" class="btn btn--wsp" target="_blank" rel="noopener noreferrer"><span>Consultar por WhatsApp</span></a>' +
+          '<a href="https://wa.me/5493413079587?text=' + wpText + '" class="btn btn--wsp" target="_blank" rel="noopener noreferrer"><span>Consultar por WhatsApp</span></a>' +
           '<a href="index.html#contacto" class="btn btn--ghost-dark"><span>Formulario de contacto</span><span class="btn__arrow">&#8594;</span></a>' +
         '</div>' +
       '</div>';
